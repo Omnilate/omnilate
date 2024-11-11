@@ -1,0 +1,11 @@
+{
+  "name": "@omnilate/schemas",
+  "version": "0.0.0",
+  "description": "",
+  "keywords": [],
+  "author": {
+    "name": "Akisaira",
+    "email": "akisaira@outlook.com"
+  },
+  "license": "MIT"
+}

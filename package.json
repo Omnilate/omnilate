@@ -1,0 +1,11 @@
+{
+  "name": "omnilate",
+  "version": "0.0.0",
+  "keywords": [],
+  "author": {
+    "name": "Akisaira",
+    "url": "https://akisaira.moe/"
+  },
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.7.0"
+}

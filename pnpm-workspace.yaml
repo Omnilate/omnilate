@@ -1,7 +1,14 @@
 packages:
   - packages/*
   - apps/*
+linkWorkspacePackages: true
 onlyBuiltDependencies:
+  - '@apollo/protobufjs'
   - '@nestjs/core'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@scarf/scarf'
   - '@swc/core'
+  - bcrypt
   - esbuild
+  - prisma

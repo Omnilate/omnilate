@@ -1,0 +1,21 @@
+{
+  "name": "@omnilate/schema",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.7.0",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint . --ext .ts --fix"
+  },
+  "devDependencies": {
+    "@akisaira/eslint-config": "^0.0.2",
+    "eslint": "^9.23.0"
+  },
+  "dependencies": {
+    "@nestjs/swagger": "^11.1.0"
+  }
+}

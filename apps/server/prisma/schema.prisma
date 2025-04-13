@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -14,11 +15,159 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
+  id           Int    @id @default(autoincrement())
+  email        String @unique
   name         String
-  avatarUrl    String
   passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+
+  avatarUrl      String
+  description    String              @default("")
+  knownLanguages UserKnownLanguage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  groups                GroupMembers[]
+  participatedProjects  ProjectParticipant[]
+  projectChatMessages   ProjectChatMessage[]
+  i18nRecordDiscussions I18nRecordDiscussions[]
+
+  I18nRecordData I18nRecordData[]
+}
+
+model UserKnownLanguage {
+  id          BigInt @id @default(autoincrement())
+  user        User   @relation(fields: [userId], references: [id])
+  userId      Int
+  language    String
+  mastery     Float
+  description String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, language])
+}
+
+model Group {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        GroupMembers[]
+  userCount    Int            @default(0)
+  projects     Project[]
+  projectCount Int            @default(0)
+}
+
+enum GroupRole {
+  OWNER
+  ADMIN
+  MEMBER
+  OBSERVER
+}
+
+model GroupMembers {
+  group     Group     @relation(fields: [groupId], references: [id])
+  groupId   Int
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  role      GroupRole
+
+  @@id([groupId, userId])
+}
+
+model Project {
+  id          Int    @id @default(autoincrement())
+  group       Group  @relation(fields: [groupId], references: [id])
+  groupId     Int
+  name        String
+  description String @default("")
+
+  projectParticipants ProjectParticipant[]
+  i18nRecords         I18nRecord[]
+  projectChatMessages ProjectChatMessage[]
+  projectVersions     ProjectVersion[]
+}
+
+model ProjectParticipant {
+  id        Int      @id @default(autoincrement())
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model I18nRecord {
+  id        BigInt    @id @default(autoincrement())
+  project   Project   @relation(fields: [projectId], references: [id])
+  projectId Int
+  deletedAt DateTime?
+
+  i18nRecordData        I18nRecordData[]
+  i18nRecordDiscussions I18nRecordDiscussions[]
+}
+
+model I18nRecordData {
+  id        BigInt     @id @default(autoincrement())
+  record    I18nRecord @relation(fields: [recordId], references: [id])
+  recordId  BigInt
+  language  String
+  value     String
+  creator   User       @relation(fields: [creatorId], references: [id])
+  creatorId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  versions ProjectVersionRecords[]
+}
+
+model I18nRecordDiscussions {
+  id        BigInt     @id @default(autoincrement())
+  record    I18nRecord @relation(fields: [recordId], references: [id])
+  recordId  BigInt
+  poster    User       @relation(fields: [posterId], references: [id])
+  posterId  Int
+  content   String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model ProjectChatMessage {
+  id        BigInt  @id @default(autoincrement())
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId Int
+  sender    User    @relation(fields: [senderId], references: [id])
+  senderId  Int
+
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model ProjectVersion {
+  id        BigInt  @id @default(autoincrement())
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId Int
+  name      String
+
+  createdAt DateTime @default(now())
+
+  records ProjectVersionRecords[]
+}
+
+model ProjectVersionRecords {
+  version   ProjectVersion @relation(fields: [versionId], references: [id])
+  versionId BigInt
+  record    I18nRecordData @relation(fields: [recordId], references: [id])
+  recordId  BigInt
+
+  @@id([versionId, recordId])
 }

@@ -2,9 +2,9 @@ import { createHash } from 'node:crypto'
 
 import { Injectable } from '@nestjs/common'
 import type { UserCreateRequest, UserUpdateRequest } from '@omnilate/schema'
-import { User } from '@prisma/client'
+import { User, UserKnownLanguage } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { hash } from 'bcrypt'
+import { hash, compare } from 'bcrypt'
 
 @Injectable()
 export class UsersService {
@@ -36,6 +36,40 @@ export class UsersService {
     })
   }
 
+  async findOneWithAllRelations (id: number) {
+    return await this.prisma.user.findUnique({
+      where: {
+        id
+      },
+      include: {
+        groups: {
+          include: {
+            group: true
+          }
+        },
+        knownLanguages: true
+      }
+    })
+  }
+
+  async findOneWIthGroupInfo (id: number, gid: number) {
+    return await this.prisma.user.findUnique({
+      where: {
+        id
+      },
+      include: {
+        groups: {
+          where: {
+            groupId: gid
+          },
+          include: {
+            group: true
+          }
+        }
+      }
+    })
+  }
+
   async findOneById (id: number): Promise<User | null> {
     return await this.prisma.user.findUnique({
       where: {
@@ -44,19 +78,44 @@ export class UsersService {
     })
   }
 
-  async findOneByEmail (email: string): Promise<User | null> {
-    return await this.prisma.user.findUnique({
+  async findOneByEmail (email: string) {
+    const user = await this.prisma.user.findUnique({
       where: {
         email
+      }
+    })
+
+    return user
+  }
+
+  async updatePassword (uid: number, oldPassword: string, newPassword: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: uid
+      }
+    })
+
+    if (user == null) {
+      throw new Error('User not found')
+    }
+
+    const isPasswordValid = await compare(oldPassword, user.passwordHash)
+    if (!isPasswordValid) {
+      throw new Error('Invalid password')
+    }
+
+    const passwordHash = await hash(newPassword, 10)
+    await this.prisma.user.update({
+      where: {
+        id: uid
+      },
+      data: {
+        passwordHash
       }
     })
   }
 
   async update (id: number, update: UserUpdateRequest): Promise<User> {
-    const newPassword = update.password != null
-      ? await hash(update.password, 10)
-      : undefined
-
     return await this.prisma.user.update({
       where: {
         id
@@ -64,8 +123,39 @@ export class UsersService {
       data: {
         name: update.name,
         email: update.email,
-        passwordHash: newPassword,
         avatarUrl: update.avatarUrl
+      }
+    })
+  }
+
+  async upsertKnownlanguage (uid: number, language: string, mastery: number, description?: string): Promise<UserKnownLanguage> {
+    return await this.prisma.userKnownLanguage.upsert({
+      where: {
+        userId_language: {
+          userId: uid,
+          language
+        }
+      },
+      create: {
+        userId: uid,
+        language,
+        mastery,
+        description: description ?? ''
+      },
+      update: {
+        mastery,
+        description: description ?? ''
+      }
+    })
+  }
+
+  async deleteKnownLanguage (uid: number, language: string): Promise<void> {
+    await this.prisma.userKnownLanguage.delete({
+      where: {
+        userId_language: {
+          userId: uid,
+          language
+        }
       }
     })
   }

@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards } from '@nestjs/common'
-import { UserCreateRequest, UserResponse, UserUpdateRequest } from '@omnilate/schema'
+import { UserCreateRequest, UserPasswordUpdateRequest, UserBaseResponse, UserUpdateRequest } from '@omnilate/schema'
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger'
 
-import { userEntityToResponse } from '@/utils/users'
+import * as userUtils from '@/utils/users'
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
 
 import { UsersService } from './users.service'
@@ -15,26 +15,32 @@ export class UsersController {
   @ApiBody({
     type: UserCreateRequest
   })
-  async create (@Body() request: UserCreateRequest): Promise<UserResponse> {
+  async create (@Body() request: UserCreateRequest): Promise<UserBaseResponse> {
     const userEntity = await this.usersService.create(request)
-    return userEntityToResponse(userEntity)
+    return userUtils.toBaseResponse(userEntity)
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  async findOne (@Param('id') id: string): Promise<UserResponse> {
+  async findOne (@Param('id') id: string): Promise<UserBaseResponse> {
     const entity = await this.usersService.findOneById(+id)
     if (entity == null) {
       throw new Error('User not found')
     }
-    return userEntityToResponse(entity)
+    return userUtils.toBaseResponse(entity)
   }
 
   @Patch(':id')
-  async update (@Param('id') id: string, @Body() request: UserUpdateRequest): Promise<UserResponse> {
+  async update (@Param('id') id: string, @Body() request: UserUpdateRequest): Promise<UserBaseResponse> {
     const entity = await this.usersService.update(+id, request)
-    return userEntityToResponse(entity)
+    return userUtils.toBaseResponse(entity)
+  }
+
+  @Patch(':id/password')
+  @ApiBody({ type: UserPasswordUpdateRequest })
+  async updatePassword (@Param('id') id: string, @Body() request: { oldPassword: string, newPassword: string }): Promise<void> {
+    await this.usersService.updatePassword(+id, request.oldPassword, request.newPassword)
   }
 
   @Delete(':id')

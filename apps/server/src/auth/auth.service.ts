@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { UsersService } from 'src/users/users.service'
 import { compare } from 'bcrypt'
-import { AccessTokenResponse, UserResponse } from '@omnilate/schema'
+import { AccessTokenResponse, UserBaseResponse } from '@omnilate/schema'
 import { User } from '@prisma/client'
 import { JwtService } from '@nestjs/jwt'
 
-import { userEntityToResponse } from '@/utils/users'
+import { toBaseResponse } from '@/utils/users'
 import { getConfigs } from '@/utils/configs'
 
 @Injectable()
@@ -15,7 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  async validateUser (credential: string, pass: string): Promise<UserResponse | null> {
+  async validateUser (credential: string, pass: string): Promise<UserBaseResponse | null> {
     const user = await this.usersService.findOneByEmail(credential)
     if (user == null) {
       return null
@@ -25,7 +25,7 @@ export class AuthService {
     if (!isPasswordValid) {
       return null
     } else {
-      return userEntityToResponse(user)
+      return toBaseResponse(user)
     }
   }
 

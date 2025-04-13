@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
 
-export class UserCreateRequest {
+import { GroupBaseResponse } from '@/groups'
+
+export abstract class UserCreateRequest {
   @ApiProperty()
   name!: string
 
@@ -11,7 +13,15 @@ export class UserCreateRequest {
   password!: string
 }
 
-export class UserUpdateRequest {
+export abstract class UserPasswordUpdateRequest {
+  @ApiProperty()
+  oldPassword!: string
+
+  @ApiProperty()
+  newPassword!: string
+}
+
+export abstract class UserUpdateRequest {
   @ApiProperty()
   name?: string
 
@@ -19,13 +29,21 @@ export class UserUpdateRequest {
   email?: string
 
   @ApiProperty()
-  password?: string
-
-  @ApiProperty()
   avatarUrl?: string
 }
 
-export class UserResponse {
+export abstract class UserKnownLanguage {
+  @ApiProperty()
+  language!: string
+
+  @ApiProperty({ description: '0-1' })
+  mastery!: number
+
+  @ApiProperty()
+  description?: string
+}
+
+export abstract class UserBaseResponse {
   @ApiProperty()
   id!: number
 
@@ -34,6 +52,9 @@ export class UserResponse {
 
   @ApiProperty()
   avatarUrl!: string
+
+  @ApiProperty()
+  description!: string
 
   @ApiProperty()
   createdAt!: string
@@ -42,22 +63,23 @@ export class UserResponse {
   updatedAt!: string
 }
 
-export class UserPersonalResponse {
+export abstract class UserDetailResponse extends UserBaseResponse {
   @ApiProperty()
-  id!: number
+  groups!: GroupBaseResponse[]
 
   @ApiProperty()
-  name!: string
+  knownLanguages!: UserKnownLanguage[]
+}
 
-  @ApiProperty()
-  avatarUrl!: string
-
+export abstract class UserPersonalResponse extends UserDetailResponse {
   @ApiProperty()
   email!: string
-
-  @ApiProperty()
-  createdAt!: string
-
-  @ApiProperty()
-  updatedAt!: string
 }
+
+export type GroupRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'OBSERVER'
+
+export abstract class UserGroupResponse extends UserBaseResponse {
+  @ApiProperty()
+  role!: GroupRole
+}
+

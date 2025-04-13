@@ -6,6 +6,9 @@ import { AppService } from './app.service'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { PrismaModule } from './prisma/prisma.module'
+import { GroupsModule } from './groups/groups.module'
+import { ProjectModule } from './project/project.module';
+import { YGateway } from './y/y.gateway';
 
 @Module({
   imports: [
@@ -14,9 +17,11 @@ import { PrismaModule } from './prisma/prisma.module'
     }),
     PrismaModule,
     UsersModule,
-    AuthModule
+    AuthModule,
+    GroupsModule,
+    ProjectModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService, YGateway]
 })
 export class AppModule {}

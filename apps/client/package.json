@@ -8,20 +8,37 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
+    "@corvu/resizable": "^0.2.4",
+    "@kobalte/core": "^0.13.9",
+    "@omnilate/schema": "workspace:^",
+    "@solid-primitives/i18n": "^2.2.0",
+    "@solid-primitives/storage": "^4.3.1",
+    "@solidjs/meta": "^0.29.4",
     "@tauri-apps/api": "^2.4.0",
     "@tauri-apps/plugin-opener": "^2.2.6",
-    "solid-js": "^1.9.5"
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "ky": "^1.8.0",
+    "solid-js": "^1.9.5",
+    "tailwind-merge": "^3.1.0",
+    "unocss-preset-animations": "^1.1.1",
+    "y-websocket": "^3.0.0",
+    "yjs": "^13.6.24"
   },
   "devDependencies": {
+    "@akisaira/eslint-config": "^0.0.2",
     "@tauri-apps/cli": "^2.4.0",
+    "eslint": "^9.23.0",
     "typescript": "~5.6.3",
+    "unocss": "66.1.0-beta.9",
     "vite": "^6.2.3",
     "vite-plugin-solid": "^2.11.6",
-    "eslint": "^9.23.0",
-    "@akisaira/eslint-config": "^0.0.1"
+    "vite-plugin-solid-svg": "^0.8.1"
   }
 }

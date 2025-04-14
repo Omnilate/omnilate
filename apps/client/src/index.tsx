@@ -1,5 +1,8 @@
 /* @refresh reload */
-import { render } from "solid-js/web";
-import App from "./App";
+import { render } from 'solid-js/web'
+import 'virtual:uno.css'
+import '@/assets/styles/global.css'
 
-render(() => <App />, document.getElementById("root") as HTMLElement);
+import RootView from './views'
+
+render(() => <RootView />, document.getElementById('root')!)

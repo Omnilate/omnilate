@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiBody } from '@nestjs/swagger'
 
 import * as userUtils from '@/utils/users'
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
+import { CurrentUserId } from '@/auth/current-user-id.decorator'
 
 import { UsersService } from './users.service'
 
@@ -18,6 +19,17 @@ export class UsersController {
   async create (@Body() request: UserCreateRequest): Promise<UserBaseResponse> {
     const userEntity = await this.usersService.create(request)
     return userUtils.toBaseResponse(userEntity)
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async findMe (@CurrentUserId() id: number): Promise<UserBaseResponse> {
+    const entity = await this.usersService.findOneById(id)
+    if (entity == null) {
+      throw new Error('User not found')
+    }
+    return userUtils.toBaseResponse(entity)
   }
 
   @Get(':id')

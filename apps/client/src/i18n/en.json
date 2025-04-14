@@ -1,0 +1,40 @@
+{
+  "AUTHDIALOG": {
+    "EULA_HINT": "By performing this operation, you have read and accept our EULA",
+    "SIGNIN": {
+      "BUTTON": "Sign in",
+      "PASSWORD": {
+        "TITLE": "Password"
+      },
+      "USERNAME": {
+        "PLACEHOLDER": "Email address of the account",
+        "TITLE": "Email"
+      }
+    },
+    "SIGNUP": {
+      "BUTTON": "Sign up",
+      "EMAIL": {
+        "DESC": "Email address for signing in",
+        "TITLE": "Email"
+      },
+      "PASSWORD": {
+        "DESC": "At least 8 characters, must contain number, upper and lower case aplhabets",
+        "TITLE": "Password"
+      },
+      "PASSWORD_REPEAT": {
+        "TITLE": "Repeat Password"
+      },
+      "USERNAME": {
+        "DESC": "The displayed name of the account, can be modified later",
+        "PLACEHOLDER": "The name of the account",
+        "TITLE": "User Name"
+      }
+    },
+    "TABS": {
+      "SIGNIN": "Sign in",
+      "SIGNUP": "Sign up"
+    },
+    "TITLE": "Sign In / Sign Up"
+  },
+  "FREETIER_USER": "Free Tier"
+}

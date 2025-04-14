@@ -1,0 +1,40 @@
+{
+  "AUTHDIALOG": {
+    "EULA_HINT": "执行此操作表示您已阅读并接受我们的EULA",
+    "SIGNIN": {
+      "BUTTON": "登录",
+      "PASSWORD": {
+        "TITLE": "密码"
+      },
+      "USERNAME": {
+        "PLACEHOLDER": "账户邮箱",
+        "TITLE": "邮箱"
+      }
+    },
+    "SIGNUP": {
+      "BUTTON": "注册",
+      "EMAIL": {
+        "DESC": "用于登录的邮箱地址",
+        "TITLE": "邮箱"
+      },
+      "PASSWORD": {
+        "DESC": "至少8字符，必须包含数字及大小写字母",
+        "TITLE": "密码"
+      },
+      "PASSWORD_REPEAT": {
+        "TITLE": "重复密码"
+      },
+      "USERNAME": {
+        "DESC": "向其他人展示的账户名称，可在注册后更改",
+        "PLACEHOLDER": "账户名称",
+        "TITLE": "用户名"
+      }
+    },
+    "TABS": {
+      "SIGNIN": "登录",
+      "SIGNUP": "注册"
+    },
+    "TITLE": "登录/注册"
+  },
+  "FREETIER_USER": "普通用户"
+}

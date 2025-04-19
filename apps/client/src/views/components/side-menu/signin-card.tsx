@@ -17,7 +17,7 @@ const SigninCard: Component<SigninCardProps> = (props) => {
   const [password, setPassword] = createSignal('')
   const { setAuthModel } = useAuthModel()
   const t = useI18n()
-  const signInT = t('AUTHDIALOG').SIGNIN
+  const signInT = t.AUTHDIALOG.SIGNIN
 
   const handleSignin = async (): Promise<void> => {
     const token = await getAccessToken(username(), password())
@@ -31,18 +31,18 @@ const SigninCard: Component<SigninCardProps> = (props) => {
   return (
     <div>
       <TextFieldRoot>
-        <TextFieldLabel>{signInT.USERNAME.TITLE}</TextFieldLabel>
-        <TextField placeholder={signInT.USERNAME.PLACEHOLDER} value={username()} onChange={iv(setUsername)} />
+        <TextFieldLabel>{signInT.USERNAME.TITLE()}</TextFieldLabel>
+        <TextField placeholder={signInT.USERNAME.PLACEHOLDER()} value={username()} onChange={iv(setUsername)} />
       </TextFieldRoot>
 
       <TextFieldRoot>
-        <TextFieldLabel>{signInT.PASSWORD.TITLE}</TextFieldLabel>
+        <TextFieldLabel>{signInT.PASSWORD.TITLE()}</TextFieldLabel>
         <TextField type="password" value={password()} onChange={iv(setPassword)} />
       </TextFieldRoot>
 
       <div>
-        <Button onClick={handleSignin}>{signInT.BUTTON}</Button>
-        <div>{t('AUTHDIALOG').EULA_HINT}</div>
+        <Button onClick={handleSignin}>{signInT.BUTTON()}</Button>
+        <div>{t.AUTHDIALOG.EULA_HINT()}</div>
       </div>
     </div>
   )

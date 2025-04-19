@@ -1,21 +1,25 @@
-import type { Component } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { createEffect } from 'solid-js'
 
 import { getMe } from '@/apis/user'
-import { Button } from '@/components/ui/button'
 import { Resizable, ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
 import { useAuthModel } from '@/stores/auth'
 import { useUserModel } from '@/stores/user'
+import { ToastList, ToastRegion } from '@/components/ui/toast'
 
 import SideMenu from './components/side-menu'
 
-const RootView: Component = () => {
-  const { authModel } = useAuthModel()
+interface RootProps {
+  children?: JSX.Element
+}
+
+const RootView: Component<RootProps> = (props) => {
+  const { authenticated } = useAuthModel()
   const { setUserModel } = useUserModel()
 
   // eslint-disable-next-line solid/reactivity
   createEffect(async () => {
-    if (authModel.accessToken !== '') {
+    if (authenticated()) {
       const user = await getMe()
       setUserModel(user)
     }
@@ -27,8 +31,11 @@ const RootView: Component = () => {
         <SideMenu />
       </ResizablePanel>
       <ResizableHandle />
-      <ResizablePanel>
-        <Button >Button</Button>
+      <ResizablePanel class="flex-1 p-2">
+        <ToastRegion>
+          <ToastList />
+        </ToastRegion>
+        {props.children}
       </ResizablePanel>
     </Resizable>
   )

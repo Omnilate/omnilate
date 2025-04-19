@@ -1,4 +1,18 @@
 {
+  "ADDGROUP": {
+    "CREATE_BUTTON": "Create a New Group",
+    "JOIN_BUTTON": "Join",
+    "MEMBER_COUNT": "{{count}} member(s)",
+    "OR": "or…",
+    "PROJECT_COUNT": "{{count}} project(s)",
+    "SEARCH": {
+      "BUTTON": "Search",
+      "EMPTY": "Type something and start searching",
+      "NORESULT": "No groups found",
+      "PLACEHOLDER": "Search for groups"
+    },
+    "TITLE": "Add Group"
+  },
   "AUTHDIALOG": {
     "EULA_HINT": "By performing this operation, you have read and accept our EULA",
     "SIGNIN": {
@@ -36,5 +50,25 @@
     },
     "TITLE": "Sign In / Sign Up"
   },
-  "FREETIER_USER": "Free Tier"
+  "CREATEGROUP": {
+    "DESCRIPTION": {
+      "LABEL": "Description",
+      "PLACEHOLDER": "Describe the new group, no more than 64 characters"
+    },
+    "NAME": {
+      "DESC": "No more than 20 characters",
+      "LABEL": "Name",
+      "PLACEHOLDER": "Name of the new group"
+    },
+    "SUBMIT": "Submit",
+    "SUCCESS_TOAST": "Group {{name}} has been created",
+    "TITLE": "Create Group"
+  },
+  "FREETIER_USER": "Free Tier",
+  "SIDE": {
+    "GROUPS": {
+      "ADD": "Add",
+      "TITLE": "Your Groups"
+    }
+  }
 }

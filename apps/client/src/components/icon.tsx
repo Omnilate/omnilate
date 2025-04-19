@@ -5,6 +5,7 @@ import { cn } from '@/utils/cn'
 interface IconProps {
   children: JSX.Element
   class?: string
+  stroke?: string | number
 }
 
 const Icon: Component<IconProps> = (props) => {

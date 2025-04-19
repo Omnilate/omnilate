@@ -24,12 +24,12 @@ const AuthDialog: Component<AuthDialogProps> = (props) => {
     <Dialog open={props.show} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('AUTHDIALOG').TITLE}</DialogTitle>
+          <DialogTitle>{t.AUTHDIALOG.TITLE()}</DialogTitle>
         </DialogHeader>
         <Tabs defaultValue="signin">
           <TabsList>
-            <TabsTrigger value="signin">{t('AUTHDIALOG').TABS.SIGNIN}</TabsTrigger>
-            <TabsTrigger value="signup">{t('AUTHDIALOG').TABS.SIGNUP}</TabsTrigger>
+            <TabsTrigger value="signin">{t.AUTHDIALOG.TABS.SIGNIN()}</TabsTrigger>
+            <TabsTrigger value="signup">{t.AUTHDIALOG.TABS.SIGNUP()}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin">

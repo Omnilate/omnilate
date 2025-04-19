@@ -1,4 +1,18 @@
 {
+  "ADDGROUP": {
+    "CREATE_BUTTON": "创建一个新团队",
+    "JOIN_BUTTON": "申请加入",
+    "MEMBER_COUNT": "{{count}}名成员",
+    "OR": "或者……",
+    "PROJECT_COUNT": "{{count}}个项目",
+    "SEARCH": {
+      "BUTTON": "搜索",
+      "EMPTY": "输入文字开始搜索",
+      "NORESULT": "无结果",
+      "PLACEHOLDER": "搜索团队"
+    },
+    "TITLE": "添加团队"
+  },
   "AUTHDIALOG": {
     "EULA_HINT": "执行此操作表示您已阅读并接受我们的EULA",
     "SIGNIN": {
@@ -36,5 +50,25 @@
     },
     "TITLE": "登录/注册"
   },
-  "FREETIER_USER": "普通用户"
+  "CREATEGROUP": {
+    "DESCRIPTION": {
+      "LABEL": "简介",
+      "PLACEHOLDER": "新团队的简介，长度不超过64字符"
+    },
+    "NAME": {
+      "DESC": "长度不超过20字符",
+      "LABEL": "名称",
+      "PLACEHOLDER": "新团队的名称"
+    },
+    "SUBMIT": "提交",
+    "SUCCESS_TOAST": "已创建团队{{name}}",
+    "TITLE": "创建团队"
+  },
+  "FREETIER_USER": "普通用户",
+  "SIDE": {
+    "GROUPS": {
+      "ADD": "添加",
+      "TITLE": "你的团队"
+    }
+  }
 }

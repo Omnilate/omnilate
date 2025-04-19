@@ -31,9 +31,19 @@ export class GroupsService {
   async searchByName ({ keyword, page, pageSize }: { keyword: string, page: number, pageSize: number }): Promise<Group[]> {
     return await this.prisma.group.findMany({
       where: {
-        name: {
-          contains: keyword
-        }
+        OR: [
+          {
+            name: {
+              contains: keyword
+            }
+          },
+          {
+            description: {
+              contains: keyword
+            }
+          }
+        ]
+
       },
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -55,6 +65,23 @@ export class GroupsService {
     }
 
     return group
+  }
+
+  async getUserGroups (uid: number): Promise<Group[]> {
+    const groups = await this.prisma.group.findMany({
+      where: {
+        users: {
+          some: {
+            userId: uid
+          }
+        }
+      },
+      include: {
+        users: true
+      }
+    })
+
+    return groups
   }
 
   async update (id: number, { description, name }: GroupUpdateRequest): Promise<Group> {

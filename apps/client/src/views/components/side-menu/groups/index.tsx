@@ -1,7 +1,7 @@
 import type { Component } from 'solid-js'
-import { createEffect, createSignal, For, onMount } from 'solid-js'
+import { createEffect, createSignal, For } from 'solid-js'
 
-import Plus from '@/assets/icons/plus.svg'
+import { PlusIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
 import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
@@ -52,7 +52,7 @@ const Groups: Component = () => {
           <div>{t.SIDE.GROUPS.TITLE()}</div>
           <Button class="text-xs flex gap-1 h-6 px-2" variant="round" onClick={handleAddDialogOpen}>
             <Icon stroke="2">
-              <Plus />
+              <PlusIcon />
             </Icon>
             {t.SIDE.GROUPS.ADD()}
           </Button>

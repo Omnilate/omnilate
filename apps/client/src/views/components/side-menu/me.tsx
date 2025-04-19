@@ -2,7 +2,7 @@ import type { Component } from 'solid-js'
 
 import { useI18n } from '@/utils/i18n'
 import Icon from '@/components/icon'
-import ChevronRight from '@/assets/icons/chevron-right.svg'
+import { ChevronRightIcon } from '@/assets/icons'
 import { useUserModel } from '@/stores/user'
 import UserAvatar from '@/components/user-avatar'
 
@@ -20,7 +20,7 @@ const Me: Component = () => {
         </div>
       </div>
       <Icon>
-        <ChevronRight />
+        <ChevronRightIcon />
       </Icon>
     </div>
   )

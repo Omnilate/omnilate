@@ -4,8 +4,6 @@ import * as i18n from '@solid-primitives/i18n'
 import zhCNDict from '@/i18n/zh-CN.json'
 import enDict from '@/i18n/en.json'
 
-console.log(zhCNDict)
-
 type Locale = 'en' | 'zh-CN'
 
 const initialLocale = navigator.language.startsWith('zh') ? 'zh-CN' : 'en'

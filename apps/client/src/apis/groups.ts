@@ -43,7 +43,7 @@ export async function createGroup (name: string, desc: string): Promise<GroupBas
   return convertDatetime(group, ['createdAt', 'updatedAt'])
 }
 
-export const getGroupBase = query(async (id: number): Promise<GroupBaseResource> => {
+export const getGroup = query(async (id: number): Promise<GroupBaseResource> => {
   const httpRequest = makeHttpRequest()
 
   const response = await httpRequest.get(`groups/${id}`)

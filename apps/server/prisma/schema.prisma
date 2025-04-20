@@ -27,12 +27,21 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  groups                GroupMembers[]
-  participatedProjects  ProjectParticipant[]
-  projectChatMessages   ProjectChatMessage[]
-  i18nRecordDiscussions I18nRecordDiscussions[]
+  groups               GroupMembers[]
+  participatedProjects ProjectParticipant[]
+  recentProjects       UserRecentProject[]
 
-  I18nRecordData I18nRecordData[]
+  notifications Notification[]
+}
+
+model UserRecentProject {
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId Int
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, projectId])
 }
 
 model UserKnownLanguage {
@@ -83,16 +92,18 @@ model GroupMembers {
 }
 
 model Project {
-  id          Int    @id @default(autoincrement())
-  group       Group  @relation(fields: [groupId], references: [id])
-  groupId     Int
-  name        String
-  description String @default("")
+  id             Int     @id @default(autoincrement())
+  group          Group   @relation(fields: [groupId], references: [id])
+  groupId        Int
+  name           String
+  privateProject Boolean @default(false)
+  description    String  @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   projectParticipants ProjectParticipant[]
-  i18nRecords         I18nRecord[]
-  projectChatMessages ProjectChatMessage[]
-  projectVersions     ProjectVersion[]
+  recentVisitors      UserRecentProject[]
 }
 
 model ProjectParticipant {
@@ -105,69 +116,13 @@ model ProjectParticipant {
   updatedAt DateTime @updatedAt
 }
 
-model I18nRecord {
-  id        BigInt    @id @default(autoincrement())
-  project   Project   @relation(fields: [projectId], references: [id])
-  projectId Int
-  deletedAt DateTime?
-
-  i18nRecordData        I18nRecordData[]
-  i18nRecordDiscussions I18nRecordDiscussions[]
-}
-
-model I18nRecordData {
-  id        BigInt     @id @default(autoincrement())
-  record    I18nRecord @relation(fields: [recordId], references: [id])
-  recordId  BigInt
-  language  String
-  value     String
-  creator   User       @relation(fields: [creatorId], references: [id])
-  creatorId Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  versions ProjectVersionRecords[]
-}
-
-model I18nRecordDiscussions {
-  id        BigInt     @id @default(autoincrement())
-  record    I18nRecord @relation(fields: [recordId], references: [id])
-  recordId  BigInt
-  poster    User       @relation(fields: [posterId], references: [id])
-  posterId  Int
+model Notification {
+  id        BigInt   @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  type      String
   content   String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-}
-
-model ProjectChatMessage {
-  id        BigInt  @id @default(autoincrement())
-  project   Project @relation(fields: [projectId], references: [id])
-  projectId Int
-  sender    User    @relation(fields: [senderId], references: [id])
-  senderId  Int
-
-  content   String
+  data      Json
+  read      Boolean  @default(false)
   createdAt DateTime @default(now())
-}
-
-model ProjectVersion {
-  id        BigInt  @id @default(autoincrement())
-  project   Project @relation(fields: [projectId], references: [id])
-  projectId Int
-  name      String
-
-  createdAt DateTime @default(now())
-
-  records ProjectVersionRecords[]
-}
-
-model ProjectVersionRecords {
-  version   ProjectVersion @relation(fields: [versionId], references: [id])
-  versionId BigInt
-  record    I18nRecordData @relation(fields: [recordId], references: [id])
-  recordId  BigInt
-
-  @@id([versionId, recordId])
 }

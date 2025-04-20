@@ -14,8 +14,9 @@ const GroupSearchItem: Component<GroupItemProps> = (props) => {
   const t = useI18n()
   const { groupModel } = useGroupModel()
 
-  const joinedGroupsIds = createMemo(() => {
-    return groupModel.map((group) => group.id)
+  const joined = createMemo(() => {
+    const joinedIds = groupModel.map((group) => group.id)
+    return joinedIds.includes(props.id)
   })
 
   const handleSubmitJoinRequest = async (): Promise<void> => {
@@ -40,7 +41,7 @@ const GroupSearchItem: Component<GroupItemProps> = (props) => {
         </div>
       </div>
 
-      <Button disabled={joinedGroupsIds().includes(props.id)} onClick={handleSubmitJoinRequest}>{t.ADDGROUP.JOIN_BUTTON()}</Button>
+      <Button disabled={joined()} onClick={handleSubmitJoinRequest}>{t.ADDGROUP.JOIN_BUTTON()}</Button>
     </div>
   )
 }

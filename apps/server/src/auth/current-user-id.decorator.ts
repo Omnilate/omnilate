@@ -7,7 +7,7 @@ export const CurrentUserId = createParamDecorator(
     const request: Request = ctx.switchToHttp().getRequest()
     const userObj = request.user as { id: number } | undefined
     if (userObj == null) {
-      throw new Error('User not found in request')
+      return 0
     }
     return userObj.id
   }

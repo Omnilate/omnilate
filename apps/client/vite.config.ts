@@ -31,10 +31,16 @@ export default defineConfig(async () => ({
       ignored: ['**/src-tauri/**']
     },
     proxy: {
+      '/api/v1/yjs': {
+        target: 'ws://localhost:3000',
+        rewriteWsOrigin: true,
+        ws: true,
+        rewrite: (path: string) => path.replace(/^\/api\/v1/, '')
+      },
       '/api/v1': {
         target: 'http://localhost:3000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/v1/, '')
+        rewrite: (path: string) => path.replace(/^\/api\/v1/, '')
       }
     }
   },

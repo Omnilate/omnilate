@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards } from '@nestjs/common'
-import { UserCreateRequest, UserPasswordUpdateRequest, UserBaseResponse, UserUpdateRequest, GroupBaseResponse } from '@omnilate/schema'
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards, Put } from '@nestjs/common'
+import { UserCreateRequest, UserPasswordUpdateRequest, UserBaseResponse, UserUpdateRequest, GroupBaseResponse, ProjectBaseResponse, RecentProjectPutRequest } from '@omnilate/schema'
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger'
 
 import * as userUtils from '@/utils/users'
@@ -7,6 +7,7 @@ import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
 import { CurrentUserId } from '@/auth/current-user-id.decorator'
 import { GroupsService } from '@/groups/groups.service'
 import * as groupUtils from '@/utils/groups'
+import * as projectUtils from '@/utils/projects'
 
 import { UsersService } from './users.service'
 
@@ -73,4 +74,24 @@ export class UsersController {
   async remove (@Param('id') id: string): Promise<void> {
     await this.usersService.remove(+id)
   }
+
+  // region recent-proj
+  @Get('me/recent-projects')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async getRecentProjects (@CurrentUserId() uid: number): Promise<ProjectBaseResponse[]> {
+    const projects = await this.usersService.findRecentProjects(uid)
+    return projects.map((project) => projectUtils.toBaseResponse(project))
+  }
+
+  @Put('me/recent-projects')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async updateRecentProjects (
+    @CurrentUserId() uid: number,
+    @Body() payload: RecentProjectPutRequest
+  ): Promise<void> {
+    await this.usersService.upsertRecentProject(uid, payload.projectId)
+  }
+  // endregion
 }

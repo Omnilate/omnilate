@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import type { OpenAPIObject } from '@nestjs/swagger'
 import { WsAdapter } from '@nestjs/platform-ws'
+import * as cookieParser from 'cookie-parser'
 
 import { AppModule } from './app.module'
 
@@ -19,6 +20,7 @@ async function bootstrap (): Promise<void> {
   SwaggerModule.setup('swagger', app, documentFactory)
 
   app.useWebSocketAdapter(new WsAdapter(app))
+  app.use(cookieParser())
 
   await app.listen(process.env.PORT ?? 3000)
 }

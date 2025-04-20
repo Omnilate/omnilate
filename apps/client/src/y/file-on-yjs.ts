@@ -1,7 +1,7 @@
 import type { AwarenessInfo, Discussion, I18Next, I18NextRecord } from '@omnilate/schema'
 import { createStore, reconcile } from 'solid-js/store'
 import type { SetStoreFunction } from 'solid-js/store'
-import { WebsocketProvider } from 'y-websocket'
+import { WebsocketProvider } from '@omnilate/y-websocket'
 import * as Y from 'yjs'
 
 import { getUserColor } from '@/utils/user-color'

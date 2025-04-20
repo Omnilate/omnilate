@@ -1,12 +1,13 @@
-import { createSignal, Show } from 'solid-js'
 import type { Component } from 'solid-js'
+import { createSignal, Show } from 'solid-js'
 
-import { useAuthModel } from '@/stores/auth'
 import { Accordion } from '@/components/ui/accordion'
+import { useAuthModel } from '@/stores/auth'
 
-import Me from './me'
 import AuthDialog from './auth-dialog'
 import Groups from './groups'
+import Bottom from './bottom'
+import ProjectFiles from './project-files'
 
 const SideMenu: Component = () => {
   const { authenticated } = useAuthModel()
@@ -19,12 +20,17 @@ const SideMenu: Component = () => {
       <AuthDialog show={authDialogShown()} onClose={handleAuthDialogClose} />
       <div class="flex size-full flex-col">
         <Show when={authenticated()}>
-          <Accordion collapsible class="w-full">
+          <Accordion collapsible
+            multiple
+            class="w-full"
+            defaultValue={['groups']}
+          >
             <Groups />
+            <ProjectFiles />
           </Accordion>
         </Show>
       </div>
-      <Me />
+      <Bottom />
     </div>
   )
 }

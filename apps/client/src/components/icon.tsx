@@ -10,7 +10,7 @@ interface IconProps {
 
 const Icon: Component<IconProps> = (props) => {
   return (
-    <span class={cn('size-1em color-inherit *:size-full *:color-inherit', props.class)}>
+    <span class={cn('size-1em *:size-full *:color-inherit', props.class)}>
       {props.children}
     </span>
   )

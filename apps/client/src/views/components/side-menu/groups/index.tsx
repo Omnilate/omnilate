@@ -48,7 +48,7 @@ const Groups: Component = () => {
       <AddGroupDialog show={addDialogShown()} onClose={handleAddDialogClose} onCreateNewGroup={handleCreateDialogOpen} />
       <CreateGroupDialog show={createDialogShown()} onClose={handleCreateDialogClose} />
       <AccordionTrigger class="p-4">
-        <div class="flex flex-1 justify-between pr-4 gap-4 items-center">
+        <div class="flex flex-1 justify-between pr-2 gap-4 items-center">
           <div>{t.SIDE.GROUPS.TITLE()}</div>
           <Button class="text-xs flex gap-1 h-6 px-2" variant="round" onClick={handleAddDialogOpen}>
             <Icon stroke="2">

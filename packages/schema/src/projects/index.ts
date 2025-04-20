@@ -1,13 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger'
 
-import { GroupBaseResponse } from '@/groups'
-
 export abstract class ProjectCreateRequest {
   @ApiProperty()
   name!: string
 
   @ApiProperty()
   description?: string
+
+  @ApiProperty()
+  privateProject!: boolean
+}
+
+export abstract class ProjectUpdateRequest {
+  @ApiProperty()
+  name?: string
+
+  @ApiProperty()
+  description?: string
+
+  @ApiProperty()
+  privateProject?: boolean
+}
+
+export abstract class RecentProjectPutRequest {
+  @ApiProperty()
+  projectId!: number
 }
 
 export abstract class ProjectBaseResponse {
@@ -15,13 +32,16 @@ export abstract class ProjectBaseResponse {
   id!: number
 
   @ApiProperty()
+  groupId!: number
+
+  @ApiProperty()
   name!: string
 
   @ApiProperty()
   description?: string
 
   @ApiProperty()
-  group!: GroupBaseResponse
+  privateProject!: boolean
 
   @ApiProperty()
   createdAt!: string

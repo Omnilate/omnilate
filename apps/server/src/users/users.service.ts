@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 
 import { Injectable } from '@nestjs/common'
 import type { UserCreateRequest, UserUpdateRequest } from '@omnilate/schema'
-import { User, UserKnownLanguage } from '@prisma/client'
+import { Project, User, UserKnownLanguage } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { hash, compare } from 'bcrypt'
 
@@ -78,7 +78,7 @@ export class UsersService {
     })
   }
 
-  async findOneByEmail (email: string) {
+  async findOneByEmail (email: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
       where: {
         email
@@ -124,6 +124,45 @@ export class UsersService {
         name: update.name,
         email: update.email,
         avatarUrl: update.avatarUrl
+      }
+    })
+  }
+
+  async upsertRecentProject (uid: number, pid: number): Promise<void> {
+    await this.prisma.user.update({
+      where: {
+        id: uid
+      },
+      data: {
+        recentProjects: {
+          upsert: {
+            where: {
+              userId_projectId: {
+                userId: uid,
+                projectId: pid
+              }
+            },
+            create: {
+              projectId: pid
+            },
+            update: {}
+          }
+        }
+      }
+    })
+  }
+
+  async findRecentProjects (uid: number): Promise<Project[]> {
+    return await this.prisma.project.findMany({
+      where: {
+        recentVisitors: {
+          some: {
+            userId: uid
+          }
+        }
+      },
+      orderBy: {
+        updatedAt: 'desc'
       }
     })
   }

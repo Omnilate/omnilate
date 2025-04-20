@@ -1,7 +1,7 @@
 import type { AwarenessInfo, ProjectChatMessage, ProjectDirectory, ProjectDirectoryY, ProjectFile, ProjectFileVersion, ProjectLanguage } from '@omnilate/schema'
 import { createStore, reconcile } from 'solid-js/store'
 import type { SetStoreFunction } from 'solid-js/store'
-import { WebsocketProvider } from 'y-websocket'
+import { WebsocketProvider } from '@omnilate/y-websocket'
 import * as Y from 'yjs'
 
 import { getUserColor } from '@/utils/user-color'
@@ -73,9 +73,15 @@ export class ProjectOnYjs {
       active: false
     })
     // FIXME: performance issue
-    this.awareness.on('change', () => {
+    const handleAwarenessChange = (): void => {
       const m = this.awareness.getStates() as Map<number, AwarenessInfo>
       setAwarenessMap(reconcile(Object.fromEntries(m.entries())))
+    }
+    handleAwarenessChange()
+    this.awareness.on('change', handleAwarenessChange)
+
+    this.projectDoc.on('destroy', () => {
+      this.awareness.destroy()
     })
   }
 
@@ -135,10 +141,10 @@ export class ProjectOnYjs {
       const rootMap = target.getMap('root')
       this.setCurrentFile(
         reconcile({
-          createdAt: rootMap.get.createdAt() as string,
-          updatedAt: rootMap.get.updatedAt() as string,
-          languages: rootMap.get.languages() as Record<string, ProjectLanguage>,
-          fileVersions: rootMap.get.fileVersions() as Record<string, ProjectFileVersion>
+          createdAt: rootMap.get('createdAt') as string,
+          updatedAt: rootMap.get('updatedAt') as string,
+          languages: rootMap.get('languages') as Record<string, ProjectLanguage>,
+          fileVersions: rootMap.get('fileVersions') as Record<string, ProjectFileVersion>
         }, { key: `project-${this.projectId}-file` })
       )
     }
@@ -159,7 +165,7 @@ function yDirToJSON (dir: ProjectDirectoryY): ProjectDirectory {
         type: 'file'
       }
     } else {
-      result.children[key] = yDirToJSON(value as ProjectDirectoryY)
+      result.children[key] = yDirToJSON(value)
     }
   }
 
@@ -169,7 +175,7 @@ function yDirToJSON (dir: ProjectDirectoryY): ProjectDirectory {
 function locateTargetMap (dir: ProjectDirectoryY, path: string[]): ProjectDirectoryY {
   let target = dir
   for (const p of path) {
-    if (target.has(p) === true) {
+    if (target.has(p)) {
       target = target.get(p) as ProjectDirectoryY
     } else {
       throw new Error(`Path /${path.join('/')} not found`)

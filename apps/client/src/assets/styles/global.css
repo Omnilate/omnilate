@@ -86,3 +86,9 @@ a {
 button {
   @apply b-0 p-0;
 }
+
+.hide-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -4,7 +4,6 @@ import type { Component } from 'solid-js'
 import { For } from 'solid-js'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { useGroupModel } from '@/stores/group'
 import { useProject } from '@/stores/project'
 import { DocumentIcon, FolderIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
@@ -18,7 +17,6 @@ interface DirTreeProps {
 }
 
 const DirTree: Component<DirTreeProps> = (props) => {
-  const { currentGroup } = useGroupModel()
   const { projectMeta } = useProject()
   const isRoot = (): boolean => props.path.length === 0
   const handleClick = (): void => {
@@ -41,7 +39,7 @@ const DirTree: Component<DirTreeProps> = (props) => {
           ? (
               <A
                 class="flex gap-1 items-center ml-2 pl-[--pl] mr-2 h-6 rounded-xl hover:bg-slate-100"
-                href={`/groups/${currentGroup()?.id}/projects/${projectMeta()?.id}/files${props.path.join('/')}/${props.name}`}
+                href={`/groups/${projectMeta()?.groupId}/projects/${projectMeta()?.id}/files${props.path.join('/')}/${props.name}`}
                 style={{ '--pl': paddingLeft() }}
                 onClick={handleClick}
               >

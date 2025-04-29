@@ -13,7 +13,6 @@ const activeDict = createMemo(() => (
 ))
 
 export const useI18n = () => {
-  console.log(activeDict())
   const flatDict = createMemo(() => (i18n.flatten(activeDict())))
 
   const t = i18n.translator(flatDict, i18n.resolveTemplate)

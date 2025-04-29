@@ -4,6 +4,5 @@ export function getContrastTextColor (backgroundHex: string): string {
   const b = parseInt(backgroundHex.slice(5, 7), 16)
 
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-  console.log(`Luminance: ${luminance}, Background Color: ${backgroundHex}`)
   return (luminance > 0.75) ? '#000000' : '#FFFFFF'
 }

@@ -1,4 +1,4 @@
-import type { RecentProjectPutRequest, UserBaseResponse, UserCreateRequest } from '@omnilate/schema'
+import type { RecentProjectPutRequest, UserBaseResponse, UserCreateRequest, UserGroupResponse } from '@omnilate/schema'
 import { query } from '@solidjs/router'
 
 import { convertDatetime } from '@/utils/convert-datetime'
@@ -9,6 +9,7 @@ import type { GroupBaseResource } from './groups'
 import type { ProjectBaseResource } from './project'
 
 export type UserBaseResource = ConvertDatetime<UserBaseResponse, 'createdAt' | 'updatedAt'>
+export type UserGroupResource = ConvertDatetime<UserGroupResponse, 'createdAt' | 'updatedAt' | 'joinedAt'>
 
 export async function createUser (req: UserCreateRequest): Promise<UserBaseResource> {
   const httpRequest = makeHttpRequest()

@@ -31,7 +31,7 @@ const RootView: Component<RootProps> = (props) => {
         <SideMenu />
       </ResizablePanel>
       <ResizableHandle />
-      <ResizablePanel class="flex-1">
+      <ResizablePanel class="flex-1 bg-accent">
         <ToastRegion>
           <ToastList />
         </ToastRegion>

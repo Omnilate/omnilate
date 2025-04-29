@@ -23,22 +23,21 @@ export class ProjectsService {
     return await this.prisma.project.findMany({
       where: {
         groupId: gid,
-        AND: [
+        OR: [
           {
-            privateProject: false,
-            OR: [
-              {
-                group: {
-                  users: {
-                    some: {
-                      userId: uid
-                    }
-                  }
+            privateProject: false
+          },
+          {
+            group: {
+              users: {
+                some: {
+                  userId: uid
                 }
               }
-            ]
+            }
           }
         ]
+
       }
     })
   }
@@ -47,20 +46,19 @@ export class ProjectsService {
     return await this.prisma.project.findUnique({
       where: {
         id: pid,
-        AND: [
+        OR: [
           {
-            privateProject: false,
-            OR: [
-              {
-                group: {
-                  users: {
-                    some: {
-                      userId: uid
-                    }
-                  }
+            privateProject: false
+          },
+          {
+            group: {
+              id: gid,
+              users: {
+                some: {
+                  userId: uid
                 }
               }
-            ]
+            }
           }
         ]
       }

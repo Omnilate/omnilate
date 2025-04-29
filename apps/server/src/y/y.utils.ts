@@ -203,7 +203,11 @@ export const setupWSConnection = (conn: WebSocket, req: IncomingMessage, { docNa
   conn.binaryType = 'arraybuffer'
   // get doc, initialize if it does not exist yet
   const doc = getYDoc(docName, gc)
-  doc.getMap('records')
+
+  // set sync flag
+  const syncFlag = doc.getText('syncFlag')
+  syncFlag.delete(0, syncFlag.length)
+  syncFlag.insert(0, 'congrats')
 
   doc.conns.set(conn, new Set())
   // listen and reply to events

@@ -31,7 +31,10 @@ model User {
   participatedProjects ProjectParticipant[]
   recentProjects       UserRecentProject[]
 
-  notifications Notification[]
+  notifications            Notification[]
+  groupJoinRequests        GroupJoinRequest[]
+  groupInvitationsSended   GroupInvitation[]  @relation("GroupInvitationSended")
+  groupInvitationsReceived GroupInvitation[]  @relation("GroupInvitationReceived")
 }
 
 model UserRecentProject {
@@ -66,10 +69,12 @@ model Group {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users        GroupMembers[]
-  userCount    Int            @default(0)
-  projects     Project[]
-  projectCount Int            @default(0)
+  users           GroupMembers[]
+  userCount       Int                @default(0)
+  projects        Project[]
+  projectCount    Int                @default(0)
+  joinRequests    GroupJoinRequest[]
+  joinInvitations GroupInvitation[]
 }
 
 enum GroupRole {
@@ -125,4 +130,37 @@ model Notification {
   data      Json
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+enum JoinRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model GroupJoinRequest {
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  groupId   Int
+  group     Group    @relation(fields: [groupId], references: [id])
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, groupId])
+}
+
+model GroupInvitation {
+  inviterId Int
+  inviter   User  @relation("GroupInvitationSended", fields: [inviterId], references: [id])
+  groupId   Int
+  group     Group @relation(fields: [groupId], references: [id])
+  inviteeId Int
+  invitee   User  @relation("GroupInvitationReceived", fields: [inviteeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  status    String   @default("PENDING")
+
+  @@id([inviterId, groupId, inviteeId])
 }

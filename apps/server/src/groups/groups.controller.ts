@@ -1,16 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, UseGuards, Query } from '@nestjs/common'
-import { GroupBaseResponse, GroupCreateRequest, GroupUpdateRequest } from '@omnilate/schema'
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger'
+import { GroupBaseResponse, GroupCreateRequest, GroupInvitationCreateRequest, GroupJoinRequestReviewRequest, GroupUpdateRequest, UserGroupResponse } from '@omnilate/schema'
+import { GroupJoinInvitationAcceptedNotification, GroupJoinInvitationNotification, GroupJoinInvitationRejectedNotification, GroupJoinRequestAcceptedNotification, GroupJoinRequestNotification, GroupJoinRequestRejectedNotification } from '@omnilate/schema/dist/users/notifications/groups'
 
-import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
 import { CurrentUserId } from '@/auth/current-user-id.decorator'
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
+import { NotificationsService } from '@/users/notifications/notifications.service'
 import * as groupsUtils from '@/utils/groups'
+import * as userUtils from '@/utils/users'
 
 import { GroupsService } from './groups.service'
 
 @Controller('groups')
 export class GroupsController {
-  constructor (private readonly groupsService: GroupsService) {}
+  constructor (
+    private readonly groupsService: GroupsService,
+    private readonly notificationsService: NotificationsService
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -45,4 +51,168 @@ export class GroupsController {
     const result = await this.groupsService.searchByName({ keyword, page: 1, pageSize: 10 })
     return result.map((g) => groupsUtils.toBaseResponse(g))
   }
+
+  @Get(':id/members')
+  @UseGuards(JwtAuthGuard)
+  async getMembers (@Param('id') id: string, @CurrentUserId() uid: number): Promise<UserGroupResponse[]> {
+    const members = await this.groupsService.getMembers(+id)
+    return members.map(userUtils.toGroupResponse)
+  }
+
+  @Get(':id/members/:uid')
+  @UseGuards(JwtAuthGuard)
+  async getMember (@Param('id') id: string, @Param('uid') uid: string): Promise<UserGroupResponse> {
+    const member = await this.groupsService.getMember(+id, +uid)
+    if (member == null) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+    }
+    return userUtils.toGroupResponse(member)
+  }
+
+  // region join
+
+  @Post(':gid/join-requests')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async requestJoin (@Param('gid') gid: string, @CurrentUserId() uid: number): Promise<void> {
+    const group = await this.groupsService.findOne(+gid)
+    if (group == null) {
+      throw new HttpException('Group not found', HttpStatus.NOT_FOUND)
+    }
+    const isMember = await this.groupsService.isMember(+gid, uid)
+    if (isMember) {
+      throw new HttpException('Already a member', HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
+    const owners = await this.groupsService.getMembersOfRole(+gid, 'OWNER')
+
+    await this.groupsService.createJoinRequest(+gid, uid)
+    for (const owner of owners) {
+      await this.notificationsService.create<GroupJoinRequestNotification>(
+        owner.id,
+        {
+          type: 'GROUP_JOIN_REQUEST',
+          content: 'NOTIFICATION.GROUP_JOIN_REQUEST',
+          data: {
+            groupId: +gid,
+            userId: uid
+          }
+        }
+      )
+    }
+  }
+
+  @Patch(':gid/join-requests/:uid')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async modifyJoinRequest (
+    @Param('gid') gid: string,
+    @Param('uid') uid: string,
+    @Body() payload: GroupJoinRequestReviewRequest
+  ): Promise<void> {
+    switch (payload.status) {
+      case 'ACCEPTED': {
+        await this.groupsService.acceptJoinRequest(+gid, +uid)
+        await this.notificationsService.create<GroupJoinRequestAcceptedNotification>(
+          +uid,
+          {
+            type: 'GROUP_JOIN_REQUEST_ACCEPTED',
+            content: 'NOTIFICATION.GROUP_JOIN_REQUEST_ACCEPTED',
+            data: {
+              groupId: +gid
+            }
+          }
+        )
+        break
+      }
+      case 'REJECTED': {
+        await this.groupsService.rejectJoinRequest(+gid, +uid)
+        await this.notificationsService.create<GroupJoinRequestRejectedNotification>(
+          +uid,
+          {
+            type: 'GROUP_JOIN_REQUEST_REJECTED',
+            content: 'NOTIFICATION.GROUP_JOIN_REQUEST_REJECTED',
+            data: {
+              groupId: +gid
+            }
+          }
+        )
+        break
+      }
+      default: {
+        throw new HttpException('Invalid Action', HttpStatus.UNPROCESSABLE_ENTITY)
+      }
+    }
+  }
+
+  @Post(':gid/invitations')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async inviteUser (
+    @Param('gid') gid: string,
+    @Body() payload: GroupInvitationCreateRequest,
+    @CurrentUserId() uid: number
+  ): Promise<void> {
+    await this.groupsService.createInvitation(+gid, uid, payload.userId)
+    await this.notificationsService.create<GroupJoinInvitationNotification>(
+      payload.userId,
+      {
+        type: 'GROUP_JOIN_INVITATION',
+        content: 'NOTIFICATION.GROUP_JOIN_INVITATION',
+        data: {
+          groupId: +gid,
+          inviterId: uid,
+          inviteeId: payload.userId
+        }
+      }
+    )
+  }
+
+  @Patch(':gid/invitations/:inviterId/to/:inviteeId')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async modifyInvitation (
+    @Param('gid') gid: string,
+    @Param('inviterId') inviterId: string,
+    @Param('inviteeId') inviteeId: string,
+    @Body() payload: GroupJoinRequestReviewRequest
+  ): Promise<void> {
+    switch (payload.status) {
+      case 'ACCEPTED': {
+        await this.groupsService.acceptInvitation(+gid, +inviterId, +inviteeId)
+        await this.notificationsService.create<GroupJoinInvitationAcceptedNotification>(
+          +inviterId,
+          {
+            type: 'GROUP_JOIN_INVITATION_ACCEPTED',
+            content: 'NOTIFICATION.GROUP_JOIN_INVITATION_ACCEPTED',
+            data: {
+              groupId: +gid,
+              inviteeId: +inviteeId
+            }
+          }
+        )
+        break
+      }
+      case 'REJECTED': {
+        await this.groupsService.rejectInvitation(+gid, +inviterId, +inviteeId)
+        await this.notificationsService.create<GroupJoinInvitationRejectedNotification>(
+          +inviterId,
+          {
+            type: 'GROUP_JOIN_INVITATION_REJECTED',
+            content: 'NOTIFICATION.GROUP_JOIN_INVITATION_REJECTED',
+            data: {
+              groupId: +gid,
+              inviteeId: +inviteeId
+            }
+          }
+        )
+        break
+      }
+      default: {
+        throw new HttpException('Invalid Action', HttpStatus.UNPROCESSABLE_ENTITY)
+      }
+    }
+  }
+
+  // endregion
 }

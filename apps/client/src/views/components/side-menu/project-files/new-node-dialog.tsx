@@ -26,9 +26,9 @@ const NewNodeDialog: Component<NewNodeDialogProps> = (props) => {
     e.preventDefault()
 
     if (nodeType() === 'file') {
-      yProject()?.addFile(path(), name())
+      await yProject()?.addFile(path(), name())
     } else {
-      yProject()?.addDirectory(path(), name())
+      await yProject()?.addDirectory(path(), name())
     }
 
     props.onClose()

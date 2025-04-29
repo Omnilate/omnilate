@@ -32,7 +32,7 @@
         "TITLE": "Email"
       },
       "PASSWORD": {
-        "DESC": "At least 8 characters, must contain number, upper and lower case aplhabets",
+        "DESC": "At least 8 characters, must contain number, upper and lower case alphabets",
         "TITLE": "Password"
       },
       "PASSWORD_REPEAT": {

@@ -20,7 +20,6 @@ const DirTree: Component<DirTreeProps> = (props) => {
   const { projectMeta } = useProject()
   const isRoot = (): boolean => props.path.length === 0
   const handleClick = (): void => {
-    console.log('clicked')
     if (props.node.type === 'file') {
       setSelectedPath(props.path)
     } else {

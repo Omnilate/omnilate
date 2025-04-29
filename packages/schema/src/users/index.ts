@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 import { GroupBaseResponse } from '@/groups'
 
-export * from './notification'
+export * from './notifications'
 
 export abstract class UserCreateRequest {
   @ApiProperty()
@@ -83,4 +83,7 @@ export type GroupRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'OBSERVER'
 export abstract class UserGroupResponse extends UserBaseResponse {
   @ApiProperty()
   role!: GroupRole
+
+  @ApiProperty()
+  joinedAt!: string
 }

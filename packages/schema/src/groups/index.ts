@@ -49,3 +49,13 @@ export abstract class GroupDetailResponse extends GroupBaseResponse {
   @ApiProperty()
   users!: UserGroupResponse[]
 }
+
+export abstract class GroupJoinRequestReviewRequest {
+  @ApiProperty()
+  status!: 'ACCEPTED' | 'REJECTED'
+}
+
+export abstract class GroupInvitationCreateRequest {
+  @ApiProperty()
+  userId!: number
+}

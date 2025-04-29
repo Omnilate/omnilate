@@ -1,148 +1,153 @@
-import type { AwarenessInfo, Discussion, I18Next, I18NextRecord } from '@omnilate/schema'
-import { createStore, reconcile } from 'solid-js/store'
+import type { ProjectFile, ProjectRecord } from '@omnilate/schema'
 import type { SetStoreFunction } from 'solid-js/store'
-import { WebsocketProvider } from '@omnilate/y-websocket'
-import * as Y from 'yjs'
+import { createStore, reconcile } from 'solid-js/store'
+import type * as Y from 'yjs'
 
-import { getUserColor } from '@/utils/user-color'
+export class FileOnYjs {
+  readonly fileStore: ProjectFile
+  private readonly setFileStore: SetStoreFunction<ProjectFile>
+  readonly rootMap: Y.Map<ProjectFile[keyof ProjectFile]>
 
-export class YDocI18NextBinding {
-  readonly doc: Y.Doc
-  readonly provider: WebsocketProvider
-  readonly awareness
-  readonly awarenessMap: Record<number, AwarenessInfo>
-  readonly content: Record<string, I18NextRecord>
-  private readonly setContent: SetStoreFunction<Record<string, I18NextRecord>>
-  private recordsYMap?: Y.Map<I18Next>
+  constructor (
+    readonly doc: Y.Doc,
+    private readonly uid: number
+  ) {
+    doc.load()
+    this.rootMap = doc.getMap('root')
 
-  constructor (readonly url: string, readonly projectId: number, private readonly uid: number) {
-    this.doc = new Y.Doc()
-    this.provider = new WebsocketProvider(this.url, `i18next-${this.projectId}`, this.doc)
-
-    this.provider.on('status', (event) => {
-      if (event.status === 'connected') {
-        console.log('Connected to Yjs server')
-      } else {
-        console.log('Disconnected from Yjs server')
-      }
+    const [fileStore, setFileStore] = createStore<ProjectFile>({
+      sourceLanguage: '',
+      languages: [],
+      createdAt: '',
+      updatedAt: '',
+      records: {},
+      fileVersions: {}
     })
-
-    const [content, setContent] = createStore<Record<string, I18NextRecord>>({})
     // eslint-disable-next-line solid/reactivity
-    this.content = content
-    this.setContent = setContent
+    this.fileStore = fileStore
+    this.setFileStore = setFileStore
 
-    this.doc.on('update', () => {
-      const recordsYMap = this.doc.getMap<I18Next>('records')
-      this.recordsYMap ??= recordsYMap
-      this.setContent(reconcile(recordsYMap.toJSON(), { key: `i18next-${this.projectId}-records` }))
-    })
+    const handleUpdate = (): void => {
+      const update = this.rootMap.toJSON() as ProjectFile
+      this.setFileStore(reconcile(update, { key: `file-${this.rootMap.get('createdAt') as string}` }))
+    }
+    handleUpdate()
+    this.doc.on('update', handleUpdate)
+    this.doc.on('sync', () => { console.log('synced') })
 
-    const [awarenessMap, setAwarenessMap] = createStore<Record<number, AwarenessInfo>>({})
-    // eslint-disable-next-line solid/reactivity
-    this.awarenessMap = awarenessMap
-
-    this.awareness = this.provider.awareness
-    this.awareness.setLocalState({
-      uid: this.uid,
-      color: getUserColor(this.uid),
-      active: false
-    })
-    // FIXME: performance issue
-    this.awareness.on('change', () => {
-      const m = this.awareness.getStates() as Map<number, AwarenessInfo>
-      setAwarenessMap(reconcile(Object.fromEntries(m.entries())))
-    })
+    // if (!this.rootMap.get('createdAt')) {
+    //   doc.transact(() => {
+    //     this.rootMap.set('createdAt', new Date().toISOString())
+    //     this.rootMap.set('updatedAt', new Date().toISOString())
+    //     this.rootMap.set('sourceLanguage', '')
+    //     this.rootMap.set('languages', [])
+    //     this.rootMap.set('records', {})
+    //     this.rootMap.set('fileVersions', {})
+    //   })
+    // }
   }
 
-  addRecord (key: string, lang: string, value: string): void {
+  upsertRecord (key: string, language: string, content: string): void {
+    const records = this.rootMap.get('records') as Record<string, ProjectRecord>
+    records[key] ??= {}
+    if (records[key][language] != null) {
+      records[key][language].updatedAt = new Date().toISOString()
+      records[key][language].lastEditorId = this.uid
+      records[key][language].value = content
+      records[key][language].state = 'review-needed'
+    } else {
+      records[key][language] = {
+        discussions: [],
+        updatedAt: new Date().toISOString(),
+        lastEditorId: this.uid,
+        value: content,
+        state: 'review-needed'
+      }
+    }
+
+    const languages = this.rootMap.get('languages') as string[]
+
     this.doc.transact(() => {
-      if (this.recordsYMap == null) {
-        return
+      if (!languages.includes(language)) {
+        languages.push(language)
+        this.rootMap.set('languages', languages)
       }
-
-      let record: I18Next
-      if (this.recordsYMap.has(key)) {
-        record = this.recordsYMap.get(key)!
-      } else {
-        record = new I18Next()
-        this.recordsYMap.set(key, record)
-      }
-
-      if (record.has(lang)) {
-        const langRecord = record.get(lang)!
-        langRecord.set('value', value)
-        langRecord.set('updatedAt', new Date().toISOString())
-        langRecord.set('lastEditorId', this.uid)
-      }
-      this.recordsYMap.set(key, record)
-    })
-  }
-
-  updateRecord (key: string, lang: string, value: string): void {
-    this.doc.transact(() => {
-      if (this.recordsYMap == null) {
-        return
-      }
-
-      const record = this.recordsYMap.get(key)!
-
-      const langRecord = record.get(lang)
-      if (langRecord == null) {
-        return
-      }
-
-      langRecord.set('value', value)
-      langRecord.set('updatedAt', new Date().toISOString())
-      langRecord.set('lastEditorId', this.uid)
+      this.rootMap.set('updatedAt', new Date().toISOString())
+      this.rootMap.set('records', records)
     })
   }
 
   renameRecord (key: string, newKey: string): void {
+    const records = this.rootMap.get('records') as Record<string, ProjectRecord>
+    if (records[key] == null) {
+      return
+    }
+    records[newKey] = records[key]
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    delete records[key]
     this.doc.transact(() => {
-      if (this.recordsYMap == null) {
-        return
-      }
-
-      const record = this.recordsYMap.get(key)!
-      this.recordsYMap.set(newKey, record)
-      this.recordsYMap.delete(key)
+      this.rootMap.set('updatedAt', new Date().toISOString())
+      this.rootMap.set('records', records)
     })
   }
 
-  deleteRecord (key: string, lang: string): void {
+  deleteRecord (key: string, language: string): void {
+    const records = this.rootMap.get('records') as Record<string, ProjectRecord>
+    if (records[key] == null) {
+      return
+    }
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    delete records[key][language]
     this.doc.transact(() => {
-      if (this.recordsYMap == null) {
-        return
-      }
-
-      const record = this.recordsYMap.get(key)!
-      record.delete(lang)
+      this.rootMap.set('updatedAt', new Date().toISOString())
+      this.rootMap.set('records', records)
     })
   }
 
-  addDiscussion (key: string, lang: string, content: string): void {
+  changeState (
+    key: string,
+    language: string,
+    state: 'review-needed' | 'approved' | 'rejected'
+  ): void {
+    const records = this.rootMap.get('records') as Record<string, ProjectRecord>
+    if (records[key] == null) {
+      return
+    }
+    if (records[key][language] == null) {
+      return
+    }
+    records[key][language].state = state
     this.doc.transact(() => {
-      if (this.recordsYMap == null) {
-        return
-      }
+      this.rootMap.set('updatedAt', new Date().toISOString())
+      this.rootMap.set('records', records)
+    })
+  }
 
-      const record = this.recordsYMap.get(key)!
-      const langRecord = record.get(lang)!
-      const discussions = langRecord.get.discussions() as Y.Array<Discussion>
-      discussions.push([
-        {
-          content,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          authorId: this.uid
-        }
-      ])
+  addDiscussion (
+    key: string,
+    language: string,
+    content: string
+  ): void {
+    const records = this.rootMap.get('records') as Record<string, ProjectRecord>
+    if (records[key] == null) {
+      return
+    }
+    if (records[key][language] == null) {
+      return
+    }
+    records[key][language].discussions.push({
+      content,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      authorId: this.uid
+    })
+    this.doc.transact(() => {
+      this.rootMap.set('updatedAt', new Date().toISOString())
+      this.rootMap.set('records', records)
     })
   }
 
   destroy (): void {
-    this.provider.disconnect()
-    this.provider.destroy()
+    this.doc.destroy()
   }
 }

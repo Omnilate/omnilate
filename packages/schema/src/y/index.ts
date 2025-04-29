@@ -8,7 +8,7 @@ export type AwarenessInfo = {
 } | {
   active: true
   workingOn: {
-    filePath: string
+    filePath: string[]
     key: string
     language: string
     page: number
@@ -59,13 +59,13 @@ export interface ProjectFile {
   createdAt: string
   updatedAt: string
 
-  languages: Record<string /** key */, ProjectLanguage>
+  sourceLanguage: string
+  languages: string[]
+  records: Record<string, ProjectRecord>
   fileVersions: Record<string, ProjectFileVersion>
 }
 
-export interface ProjectLanguage {
-  records: Record<string, LanguageRecord>
-}
+export type ProjectRecord = Record<string, LanguageRecord>
 
 export interface LanguageRecord {
   discussions: Discussion[]

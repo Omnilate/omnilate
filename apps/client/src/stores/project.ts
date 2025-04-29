@@ -1,9 +1,14 @@
-import type { Accessor } from 'solid-js'
-import { createSignal } from 'solid-js'
+import type { Accessor, Resource } from 'solid-js'
+import { createMemo, createResource, createSignal } from 'solid-js'
 
 import { getProject } from '@/apis/project'
 import type { ProjectBaseResource } from '@/apis/project'
 import { ProjectOnYjs } from '@/y/project-on-yjs'
+import type { FileOnYjs } from '@/y/file-on-yjs'
+import { getGroupMember } from '@/apis/groups'
+import type { UserGroupResource } from '@/apis/user'
+
+import { useUserModel } from './user'
 
 const [projectMeta, setProjectMeta] = createSignal<ProjectBaseResource>()
 const [yProject, setYProject] = createSignal<ProjectOnYjs>()
@@ -14,11 +19,15 @@ interface ProjectStoreReturnType {
   setProject: (pid: number, gid: number) => Promise<void>
   clearModel: () => void
   projectReady: Accessor<boolean>
+  currentFile: Accessor<FileOnYjs | undefined>,
+  myGroupInfo: Resource<UserGroupResource | undefined>
 }
 
 export const useProject = (): ProjectStoreReturnType => {
+  const { userModel } = useUserModel()
+
   const setProject = async (pid: number, gid: number): Promise<void> => {
-    const project = await getProject(pid, gid)
+    const project = await getProject(gid, pid)
     setYProject(new ProjectOnYjs('/api/v1/yjs', pid, gid))
     setProjectMeta(project)
   }
@@ -34,11 +43,28 @@ export const useProject = (): ProjectStoreReturnType => {
     return (yProject() != null) && (projectMeta() != null)
   }
 
+  const currentFile = createMemo(() => {
+    return yProject()?.currentFileDoc()
+  })
+
+  const [myGroupInfo] = createResource(
+    () => ({ user: userModel, project: projectMeta(), ready: projectReady() }),
+    async ({ user, project, ready }) => {
+      if (!ready || user.id === 0 || (project == null)) {
+        return
+      }
+
+      return await getGroupMember(project.groupId, user.id)
+    }
+  )
+
   return {
     yProject,
     projectMeta,
     setProject,
     clearModel,
-    projectReady
+    projectReady,
+    currentFile,
+    myGroupInfo
   }
 }

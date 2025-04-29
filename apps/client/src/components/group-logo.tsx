@@ -20,7 +20,7 @@ const GroupLogo: Component<GroupLogoProps> = (props) => {
   const bgColor = (): string => getUserColor('id' in props ? props.id : props.group.id)
 
   return (
-    <A class={cn('size-10', props.class)} href="/groups/0">
+    <A class={cn('size-10', props.class)} href={`/groups/${'id' in props ? props.id : props.group.id}`}>
       <ImageRoot class="size-full">
         {/* <Image alt={'Group Logo'} class="size-full" src={user()?.avatarUrl} /> */}
         <ImageFallback

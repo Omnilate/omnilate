@@ -1,205 +1,59 @@
 import type { DropdownMenuTriggerProps } from '@kobalte/core/dropdown-menu'
 import type { SelectTriggerProps } from '@kobalte/core/select'
-import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/solid-table'
+import type { ProjectRecord } from '@omnilate/schema'
+import type { ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/solid-table'
 import { createSolidTable, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel } from '@tanstack/solid-table'
 import type { Component } from 'solid-js'
-import { For, Match, Show, Switch, createMemo, createSignal } from 'solid-js'
+import { For, Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Checkbox, CheckboxControl } from '@/components/ui/checkbox'
 import {
   DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup,
-  DropdownMenuGroupLabel, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger
+  DropdownMenuGroupLabel,
+  DropdownMenuSeparator, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { TextField, TextFieldRoot } from '@/components/ui/textfield'
+import { useProject } from '@/stores/project'
 
-import TableColumnHeader from './table-column-header'
+import AddRecordPopover from './add-record-popover'
+import type { FlattenedRecord } from './columns'
+import { columns } from './columns'
 
-const filteredStatusList = () => ['todo', 'in-progress', 'done', 'cancelled'].map((e) => ({
+interface EditorProps {
+  filePath: string[]
+}
+
+export const filteredStatusList = () => ['review-needed', 'approved', 'rejected'].map((e) => ({
   title: e,
   value: e
 }))
 
-const columns: Array<ColumnDef<I18NextRecord>> = [
-  {
-    id: 'key',
-    accessorKey: 'key',
-    header: (props) => (
-      <TableColumnHeader column={props.column} title="Key" />
-    ),
-    cell: (props) => (
-      <Checkbox
-        aria-label="Select row"
-        checked={props.row.getIsSelected()}
-        class="translate-y-[2px]"
-        onChange={(value) => { props.row.toggleSelected(value) }}
-      >
-        <CheckboxControl />
-      </Checkbox>
-    ),
-    enableSorting: false,
-    enableHiding: false
-  },
-  {
-    accessorKey: 'code',
-    header: (props) => <TableColumnHeader column={props.column} title="Task" />,
-    cell: (props) => <div class="w-[70px]">{props.row.getValue('code')}</div>,
-    enableSorting: false,
-    enableHiding: false
-  },
-  {
-    accessorKey: 'title',
-    header: (props) => (
-      <TableColumnHeader column={props.column} title="Title" />
-    ),
-    cell: (props) => (
-      <div class="flex space-x-2">
-        <Badge variant="outline">{props.row.original.label}</Badge>
-        <span class="max-w-[250px] truncate font-medium">
-          {props.row.getValue('title')}
-        </span>
-      </div>
-    )
-  },
-  {
-    accessorKey: 'status',
-    header: (props) => (
-      <TableColumnHeader column={props.column} title="Status" />
-    ),
-    cell: (props) => (
-      <div class="flex w-[100px] items-center">
-        <Switch>
-          <Match when={props.row.original.status === 'cancelled'}>
-            <svg
-              aria-hidden="true"
-              class="mr-2 size-4 text-muted-foreground"
-              height="1em"
-              viewBox="0 0 24 24"
-              width="1em"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M10 20.777a8.942 8.942 0 0 1-2.48-.969M14 3.223a9.003 9.003 0 0 1 0 17.554m-9.421-3.684a8.961 8.961 0 0 1-1.227-2.592M3.124 10.5c.16-.95.468-1.85.9-2.675l.169-.305m2.714-2.941A8.954 8.954 0 0 1 10 3.223M14 14l-4-4m0 4l4-4"
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-              />
-            </svg>
-          </Match>
-          <Match when={props.row.original.status === 'done'}>
-            <svg
-              aria-hidden="true"
-              class="mr-2 size-4 text-muted-foreground"
-              height="1em"
-              viewBox="0 0 24 24"
-              width="1em"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-              >
-                <path d="M10 20.777a8.942 8.942 0 0 1-2.48-.969M14 3.223a9.003 9.003 0 0 1 0 17.554m-9.421-3.684a8.961 8.961 0 0 1-1.227-2.592M3.124 10.5c.16-.95.468-1.85.9-2.675l.169-.305m2.714-2.941A8.954 8.954 0 0 1 10 3.223" />
-                <path d="m9 12l2 2l4-4" />
-              </g>
-            </svg>
-          </Match>
-          <Match when={props.row.original.status === 'in-progress'}>
-            <svg
-              aria-hidden="true"
-              class="mr-2 size-4 text-muted-foreground"
-              height="1em"
-              viewBox="0 0 24 24"
-              width="1em"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M10 20.777a8.942 8.942 0 0 1-2.48-.969M14 3.223a9.003 9.003 0 0 1 0 17.554m-9.421-3.684a8.961 8.961 0 0 1-1.227-2.592M3.124 10.5c.16-.95.468-1.85.9-2.675l.169-.305m2.714-2.941A8.954 8.954 0 0 1 10 3.223M12 9l-2 3h4l-2 3"
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-              />
-            </svg>
-          </Match>
-          <Match when={props.row.original.status === 'todo'}>
-            <svg
-              aria-hidden="true"
-              class="mr-2 size-4 text-muted-foreground"
-              height="1em"
-              viewBox="0 0 24 24"
-              width="1em"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-              >
-                <path d="M12 16v.01M12 13a2 2 0 0 0 .914-3.782a1.98 1.98 0 0 0-2.414.483M10 20.777a8.942 8.942 0 0 1-2.48-.969" />
-                <path d="M14 3.223a9.003 9.003 0 0 1 0 17.554m-9.421-3.684a8.961 8.961 0 0 1-1.227-2.592M3.124 10.5c.16-.95.468-1.85.9-2.675l.169-.305m2.714-2.941A8.954 8.954 0 0 1 10 3.223" />
-              </g>
-            </svg>
-          </Match>
-        </Switch>
-        <span class="capitalize">{props.row.original.status}</span>
-      </div>
-    ),
-    filterFn: (row, id, value) => {
-      return Array.isArray(value) && value.includes(row.getValue(id))
-    }
-  },
-  {
-    id: 'actions',
-    cell: () => (
-      <DropdownMenu placement="bottom-end">
-        <DropdownMenuTrigger class="flex items-center justify-center">
-          <svg
-            class="size-4"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M4 12a1 1 0 1 0 2 0a1 1 0 1 0-2 0m7 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0m7 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0"
-              fill="none"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-            />
-            <title>Action</title>
-          </svg>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    )
-  }
-]
-
-const Editor: Component = () => {
-  const data = createMemo(() => [])
+const Editor: Component<EditorProps> = (props) => {
+  const { yProject } = useProject()
+  const data = createMemo<FlattenedRecord[]>(() => {
+    const records = yProject()?.currentFileDoc()?.fileStore?.records
+    const result = Object.entries(records ?? {} satisfies Record<string, ProjectRecord>).map(([key, value]) => ({
+      key,
+      raw: value
+    }))
+    console.log(result)
+    return result
+  })
   const [rowSelection, setRowSelection] = createSignal({})
-  const [columnVisibility, setColumnVisibility] = createSignal<VisibilityState>(
-    {}
-  )
-  const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>(
-    []
-  )
+  const [columnVisibility, setColumnVisibility] = createSignal<VisibilityState>({})
+  const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([])
   const [sorting, setSorting] = createSignal<SortingState>([])
+
+  onMount(async () => {
+    await yProject()?.workOnFile(props.filePath)
+  })
+
+  onCleanup(() => {
+    yProject()?.leaveFile()
+  })
 
   const table = createSolidTable({
     get data () {
@@ -238,13 +92,14 @@ const Editor: Component = () => {
         <TextFieldRoot>
           <TextField
             class="h-8"
-            placeholder="Filter titles..."
+            placeholder="Filter keys..."
             type="text"
-            value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
-            onInput={(e) => table.getColumn('title')?.setFilterValue(e.currentTarget.value)}
+            // value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
+            // onInput={(e) => table.getColumn('title')?.setFilterValue(e.currentTarget.value)}
           />
         </TextFieldRoot>
         <div class="flex items-center gap-2">
+          <AddRecordPopover />
           <Select
             multiple
             optionTextValue="title"
@@ -272,6 +127,7 @@ const Editor: Component = () => {
                   variant="outline"
                 >
                   <div class="flex items-center">
+                    {/* Filter */}
                     <svg
                       class="mr-2 size-4"
                       viewBox="0 0 24 24"
@@ -338,6 +194,7 @@ const Editor: Component = () => {
                   class="flex h-8"
                   variant="outline"
                 >
+                  {/* Eye */}
                   <svg
                     class="mr-2 size-4"
                     viewBox="0 0 24 24"

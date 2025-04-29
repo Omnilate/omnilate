@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common'
-import { Group, GroupRole, User } from '@prisma/client'
 import { GroupUpdateRequest } from '@omnilate/schema'
+import { Group, GroupInvitation, GroupRole, User } from '@prisma/client'
 
 import { PrismaService } from '@/prisma/prisma.service'
+import { UserWithGroups } from '@/utils/users'
 
 @Injectable()
 export class GroupsService {
@@ -96,7 +97,24 @@ export class GroupsService {
     })
   }
 
-  async getMembers (id: number): Promise<User[]> {
+  async getMember (gid: number, uid: number): Promise<UserWithGroups | null> {
+    const member = await this.prisma.user.findUnique({
+      where: {
+        id: uid
+      },
+      include: {
+        groups: {
+          where: {
+            groupId: gid
+          }
+        }
+      }
+    })
+
+    return member
+  }
+
+  async getMembers (id: number): Promise<UserWithGroups[]> {
     const members = await this.prisma.user.findMany({
       where: {
         groups: {
@@ -117,7 +135,7 @@ export class GroupsService {
     return members
   }
 
-  async addMember (gid: number, uid: number, role: GroupRole) {
+  async addMember (gid: number, uid: number, role: GroupRole): Promise<UserWithGroups[]> {
     await this.prisma.$transaction(async (prisma) => {
       await prisma.groupMembers.create({
         data: {
@@ -140,7 +158,7 @@ export class GroupsService {
     return await this.getMembers(gid)
   }
 
-  async updateMemberRole (gid: number, uid: number, role: GroupRole) {
+  async updateMemberRole (gid: number, uid: number, role: GroupRole): Promise<UserWithGroups[]> {
     await this.prisma.groupMembers.update({
       where: {
         groupId_userId: {
@@ -176,5 +194,155 @@ export class GroupsService {
         }
       })
     })
+  }
+
+  async getMembersOfRole (gid: number, role: GroupRole): Promise<User[]> {
+    const members = await this.prisma.user.findMany({
+      where: {
+        groups: {
+          some: {
+            groupId: gid,
+            role
+          }
+        }
+      }
+    })
+    return members
+  }
+
+  async createJoinRequest (gid: number, uid: number): Promise<void> {
+    await this.prisma.groupJoinRequest.create({
+      data: {
+        groupId: gid,
+        userId: uid
+      }
+    })
+  }
+
+  async getJoinRequests (gid: number): Promise<UserWithGroups[]> {
+    const requests = await this.prisma.groupJoinRequest.findMany({
+      where: {
+        groupId: gid
+      },
+      include: {
+        user: {
+          include: {
+            groups: true
+          }
+        }
+      }
+    })
+
+    return requests.map((r) => r.user)
+  }
+
+  async acceptJoinRequest (gid: number, uid: number): Promise<UserWithGroups[]> {
+    await this.prisma.$transaction(async (prisma) => {
+      await prisma.groupJoinRequest.update({
+        where: {
+          userId_groupId: {
+            userId: uid,
+            groupId: gid
+          }
+        },
+        data: {
+          status: 'ACCEPTED'
+        }
+      })
+
+      await prisma.groupMembers.create({
+        data: {
+          groupId: gid,
+          userId: uid,
+          role: 'MEMBER'
+        }
+      })
+    })
+
+    return await this.getMembers(gid)
+  }
+
+  async rejectJoinRequest (gid: number, uid: number): Promise<void> {
+    await this.prisma.groupJoinRequest.update({
+      where: {
+        userId_groupId: {
+          userId: uid,
+          groupId: gid
+        }
+      },
+      data: {
+        status: 'REJECTED'
+      }
+    })
+  }
+
+  async createInvitation (gid: number, inviterId: number, inviteeId: number): Promise<GroupInvitation> {
+    return await this.prisma.groupInvitation.create({
+      data: {
+        groupId: gid,
+        inviterId,
+        inviteeId
+      }
+    })
+  }
+
+  async acceptInvitation (gid: number, inviterId: number, inviteeId: number): Promise<void> {
+    await this.prisma.$transaction(async (prisma) => {
+      await prisma.groupInvitation.update({
+        where: {
+          inviterId_groupId_inviteeId: {
+            groupId: gid,
+            inviterId,
+            inviteeId
+          }
+        },
+        data: {
+          status: 'ACCEPTED'
+        }
+      })
+
+      await this.addMember(gid, inviteeId, 'MEMBER')
+    })
+  }
+
+  async rejectInvitation (gid: number, inviterId: number, inviteeId: number): Promise<void> {
+    await this.prisma.groupInvitation.update({
+      where: {
+        inviterId_groupId_inviteeId: {
+          groupId: gid,
+          inviterId,
+          inviteeId
+        }
+      },
+      data: {
+        status: 'REJECTED'
+      }
+    })
+  }
+
+  async getGroupRole (gid: number, uid: number): Promise<GroupRole | null> {
+    const group = await this.prisma.groupMembers.findUnique({
+      where: {
+        groupId_userId: {
+          groupId: gid,
+          userId: uid
+        }
+      }
+    })
+
+    return group?.role ?? null
+  }
+
+  async isMember (gid: number, uid: number): Promise<boolean> {
+    const group = await this.prisma.groupMembers.findUnique({
+      where: {
+        groupId_userId: {
+          groupId: gid,
+          userId: uid
+        }
+      }
+    })
+
+    return group != null
   }
 }

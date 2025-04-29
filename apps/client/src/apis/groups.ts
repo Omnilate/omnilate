@@ -5,6 +5,7 @@ import { convertDatetime } from '@/utils/convert-datetime'
 import type { ConvertDatetime } from '@/utils/convert-datetime'
 
 import { makeHttpRequest } from './http-request'
+import type { UserGroupResource } from './user'
 
 export type GroupBaseResource = ConvertDatetime<GroupBaseResponse, 'createdAt' | 'updatedAt'>
 
@@ -55,3 +56,29 @@ export const getGroup = query(async (id: number): Promise<GroupBaseResource> => 
   const group = await response.json<GroupBaseResponse>()
   return convertDatetime(group, ['createdAt', 'updatedAt'])
 }, 'get-group-base-by-id')
+
+export const getGroupMembers = query(async (id: number): Promise<UserGroupResource[]> => {
+  const httpRequest = makeHttpRequest()
+
+  const response = await httpRequest.get(`groups/${id}/members`)
+
+  if (!response.ok) {
+    throw new Error('Failed to get group members')
+  }
+
+  const members = await response.json<UserGroupResource[]>()
+  return members.map((member) => convertDatetime(member, ['createdAt', 'updatedAt', 'joinedAt']))
+}, 'get-group-members')
+
+export const getGroupMember = query(async (gid: number, uid: number): Promise<UserGroupResource> => {
+  const httpRequest = makeHttpRequest()
+
+  const response = await httpRequest.get(`groups/${gid}/members/${uid}`)
+
+  if (!response.ok) {
+    throw new Error('Failed to get group member')
+  }
+
+  const member = await response.json<UserGroupResource>()
+  return convertDatetime(member, ['createdAt', 'updatedAt', 'joinedAt'])
+}, 'get-group-member')

@@ -15,7 +15,7 @@ const Message: Component<MessageProps> = (props) => {
     <div class="flex w-full items-end gap-2"
       classList={{ 'flex-row-reverse': isFromMe() }}
     >
-      <UserAvatar id={props.authorId} />
+      <UserAvatar uid={props.authorId} />
       <div class="hyphens-auto bg-primary text-primary-foreground py-2 px-4 rounded-xl">
         {props.content}
       </div>

@@ -19,3 +19,71 @@ export const useI18n = () => {
 
   return i18n.chainedTranslator(activeDict(), t)
 }
+
+interface NestedI18nDict {
+  [key: string]: string | NestedI18nDict;
+}
+
+const flattenI18nJson = (dict: NestedI18nDict): Record<string, string> => {
+  const result: Record<string, string> = {}
+
+  for (const [key, value] of Object.entries(dict)) {
+    if (typeof value === 'string') {
+      result[key] = value
+    } else {
+      const nestedResult = flattenI18nJson(value)
+      for (const [nestedKey, nestedValue] of Object.entries(nestedResult)) {
+        result[`${key}.${nestedKey}`] = nestedValue
+      }
+    }
+  }
+
+  return result
+}
+
+export type FileType = 'i18next' | 'plainKV' | 'natural'
+
+export const fileParsers: Record<string, (textFile: File) => Promise<Record<string, string>>> = {
+  i18next: async (textFile: File) => {
+    const text = await textFile.text()
+    try {
+      const json = JSON.parse(text) as NestedI18nDict
+      return flattenI18nJson(json)
+    } catch {
+      throw new Error('Invalid JSON format')
+    }
+  },
+  plainKV: async (textFile: File) => {
+    const text = await textFile.text()
+    const lines = text.split('\n')
+    const result: Record<string, string> = {}
+
+    for (const line of lines) {
+      const [key, value] = line.split('=')
+      if ((key !== '') && (value !== '')) {
+        result[key.trim()] = value.trim()
+      }
+    }
+
+    return result
+  },
+  natural: async (textFile: File) => {
+    const text = await textFile.text()
+    const lines = text.split('\n')
+    const result: Record<string, string> = {}
+
+    let nonEmptyLinesCnt = 0
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim()
+      if (line === '') {
+        continue
+      }
+      ++nonEmptyLinesCnt
+
+      result[`Paragraph ${nonEmptyLinesCnt}`] = line
+    }
+
+    return result
+  }
+}
+

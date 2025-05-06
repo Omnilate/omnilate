@@ -1,12 +1,13 @@
 import type { RouteSectionProps } from '@solidjs/router'
 import { createEffect, createSignal, Match, Switch } from 'solid-js'
 import type { Component } from 'solid-js'
-import type { ProjectDirectory, ProjectFileInfo } from '@omnilate/schema'
+import type { ProjectDirectory } from '@omnilate/schema'
 
 import { useProject } from '@/stores/project'
 
-import Editor from './components/editor'
+import FileView from './components/file'
 import Path from './components/path'
+import Directory from './components/directory'
 
 interface FilesViewProps extends RouteSectionProps {}
 
@@ -37,15 +38,15 @@ const FilesView: Component<FilesViewProps> = (props) => {
   })
 
   return (
-    <div class="flex flex-col">
+    <div class="flex flex-col w-full">
       <Path baseLocation={baseLocation()} projectName={projectMeta()?.name ?? 'Project Root'} rawNodePath={props.params.path} />
       <div>
         <Switch>
           <Match when={nodeType() === 'directory'}>
-            dir
+            <Directory baseUrl={baseLocation()} dirPath={nodePath()} />
           </Match>
           <Match when={nodeType() === 'file'}>
-            <Editor filePath={nodePath()} />
+            <FileView filePath={nodePath()} />
           </Match>
         </Switch>
       </div>

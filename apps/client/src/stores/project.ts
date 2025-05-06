@@ -1,5 +1,6 @@
 import type { Accessor, Resource } from 'solid-js'
 import { createMemo, createResource, createSignal } from 'solid-js'
+import type { AwarenessInfo } from '@omnilate/schema'
 
 import { getProject } from '@/apis/project'
 import type { ProjectBaseResource } from '@/apis/project'
@@ -20,6 +21,7 @@ interface ProjectStoreReturnType {
   clearModel: () => void
   projectReady: Accessor<boolean>
   currentFile: Accessor<FileOnYjs | undefined>,
+  awareness: Accessor<Record<number, AwarenessInfo> | undefined>
   myGroupInfo: Resource<UserGroupResource | undefined>
 }
 
@@ -28,9 +30,13 @@ export const useProject = (): ProjectStoreReturnType => {
 
   const setProject = async (pid: number, gid: number): Promise<void> => {
     const project = await getProject(gid, pid)
-    setYProject(new ProjectOnYjs('/api/v1/yjs', pid, gid))
+    setYProject(new ProjectOnYjs('/api/v1/yjs', pid, userModel.id))
     setProjectMeta(project)
   }
+
+  const awareness = createMemo(() => {
+    return yProject()?.awarenessMap
+  })
 
   const clearModel = (): void => {
     yProject()?.projectDoc?.destroy()
@@ -65,6 +71,7 @@ export const useProject = (): ProjectStoreReturnType => {
     clearModel,
     projectReady,
     currentFile,
-    myGroupInfo
+    myGroupInfo,
+    awareness
   }
 }

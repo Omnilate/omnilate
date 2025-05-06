@@ -7,10 +7,10 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DocumentPlusIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
+import NewNodeDialog from '@/components/new-node-dialog'
 
-import { setSelectedPath } from './selected-path'
+import { selectedPath, setSelectedPath } from './selected-path'
 import DirTree from './dir-tree'
-import NewNodeDialog from './new-node-dialog'
 
 const ProjectFiles: Component = () => {
   const { projectReady, projectMeta, yProject } = useProject()
@@ -30,7 +30,7 @@ const ProjectFiles: Component = () => {
 
   return (
     <Show when={projectReady()}>
-      <NewNodeDialog show={shown()} onClose={handleCloseNewNodeDialog} />
+      <NewNodeDialog initialPath={selectedPath()} show={shown()} onClose={handleCloseNewNodeDialog} />
       <AccordionItem value="project-files">
         <AccordionTrigger class="p-4" onClick={handleTriggerClick}>
           <div class="flex flex-1 pr-2 items-center justify-between">

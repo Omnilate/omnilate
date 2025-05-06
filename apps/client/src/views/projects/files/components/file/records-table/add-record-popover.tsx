@@ -15,7 +15,7 @@ const AddRecordPopover: Component = () => {
   const handleAddRecord = (e: Event): void => {
     e.preventDefault()
 
-    currentFile()?.upsertRecord(key(), 'en', '')
+    currentFile()?.createEmptyKey(key())
     setKey('')
   }
 

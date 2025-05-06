@@ -1,4 +1,4 @@
-import type { ProjectDirectory, ProjectFileInfo } from '@omnilate/schema'
+import type { ProjectDirectory, ProjectFile } from '@omnilate/schema'
 import { A } from '@solidjs/router'
 import type { Component } from 'solid-js'
 import { For } from 'solid-js'
@@ -11,7 +11,7 @@ import Icon from '@/components/icon'
 import { setSelectedPath } from './selected-path'
 
 interface DirTreeProps {
-  node: ProjectFileInfo | ProjectDirectory
+  node: ProjectFile | ProjectDirectory
   name?: string
   path: string[]
 }

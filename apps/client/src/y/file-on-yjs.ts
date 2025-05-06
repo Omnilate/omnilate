@@ -1,153 +1,234 @@
-import type { ProjectFile, ProjectRecord } from '@omnilate/schema'
+import type {
+  Discussion, LanguageMetaY, LanguageRecordState,
+  LanguageRecordY, ProjectFile, ProjectFileY, ProjectRecordY
+} from '@omnilate/schema'
 import type { SetStoreFunction } from 'solid-js/store'
 import { createStore, reconcile } from 'solid-js/store'
-import type * as Y from 'yjs'
+import * as Y from 'yjs'
+
+import type { ProjectOnYjs } from './project-on-yjs'
 
 export class FileOnYjs {
   readonly fileStore: ProjectFile
   private readonly setFileStore: SetStoreFunction<ProjectFile>
-  readonly rootMap: Y.Map<ProjectFile[keyof ProjectFile]>
+  readonly rawRecords: Y.Map<ProjectRecordY>
 
   constructor (
     readonly doc: Y.Doc,
-    private readonly uid: number
+    readonly fileMap: ProjectFileY,
+    private readonly uid: number,
+    readonly awareness: ProjectOnYjs['awareness']
   ) {
-    doc.load()
-    this.rootMap = doc.getMap('root')
+    this.rawRecords = this.fileMap.get('records') as Y.Map<ProjectRecordY>
 
-    const [fileStore, setFileStore] = createStore<ProjectFile>({
-      sourceLanguage: '',
-      languages: [],
-      createdAt: '',
-      updatedAt: '',
-      records: {},
-      fileVersions: {}
-    })
+    const [fileStore, setFileStore] = createStore<ProjectFile>(
+      this.fileMap.toJSON() as ProjectFile
+    )
     // eslint-disable-next-line solid/reactivity
     this.fileStore = fileStore
     this.setFileStore = setFileStore
 
     const handleUpdate = (): void => {
-      const update = this.rootMap.toJSON() as ProjectFile
-      this.setFileStore(reconcile(update, { key: `file-${this.rootMap.get('createdAt') as string}` }))
+      const update = this.fileMap.toJSON() as ProjectFile
+      this.setFileStore(reconcile(update, { key: `file-${this.fileMap.get('createdAt') as string}` }))
     }
     handleUpdate()
-    this.doc.on('update', handleUpdate)
-    this.doc.on('sync', () => { console.log('synced') })
-
-    // if (!this.rootMap.get('createdAt')) {
-    //   doc.transact(() => {
-    //     this.rootMap.set('createdAt', new Date().toISOString())
-    //     this.rootMap.set('updatedAt', new Date().toISOString())
-    //     this.rootMap.set('sourceLanguage', '')
-    //     this.rootMap.set('languages', [])
-    //     this.rootMap.set('records', {})
-    //     this.rootMap.set('fileVersions', {})
-    //   })
-    // }
+    this.fileMap.observeDeep(handleUpdate)
   }
 
-  upsertRecord (key: string, language: string, content: string): void {
-    const records = this.rootMap.get('records') as Record<string, ProjectRecord>
-    records[key] ??= {}
-    if (records[key][language] != null) {
-      records[key][language].updatedAt = new Date().toISOString()
-      records[key][language].lastEditorId = this.uid
-      records[key][language].value = content
-      records[key][language].state = 'review-needed'
+  // #region Key
+
+  public createEmptyKey (key: string): void {
+    this.doc.transact(() => {
+      let keyRecord = this.rawRecords.get(key)
+      if (keyRecord == null) {
+        keyRecord = new Y.Map() as ProjectRecordY
+        keyRecord.set('languages', new Y.Map<LanguageRecordY>())
+        keyRecord.set('updatedAt', new Date().toISOString())
+        this.rawRecords.set(key, keyRecord)
+      }
+    })
+  }
+
+  public getRawKey (key: string): ProjectRecordY {
+    const keyData = this.rawRecords.get(key)
+
+    if (keyData == null) {
+      throw new Error(`Key ${key} not found`)
+    }
+
+    return keyData
+  }
+
+  public renameKey (oldKey: string, newKey: string): void {
+    const oldKeyData = this.getRawKey(oldKey)
+    this.doc.transact(() => {
+      this.rawRecords.set(newKey, oldKeyData)
+      this.rawRecords.delete(oldKey)
+    })
+  }
+
+  // #endregion Key
+
+  public getLangRecord (key: string, language: string): LanguageRecordY {
+    const keyData = this.rawRecords.get(key)
+    if (keyData == null) {
+      throw new Error(`Key ${key} not found`)
+    }
+
+    const langRecords = keyData.get('languages') as Y.Map<LanguageRecordY>
+    const langRecord = langRecords.get(language)
+    if (langRecord == null) {
+      throw new Error(`Language ${language} not found`)
+    }
+
+    return langRecord
+  }
+
+  private introduceNewLanguage (language: string, source: boolean = false): void {
+    const languages = this.fileMap.get('languages') as Y.Map<LanguageMetaY>
+    if (languages.get(language) == null) {
+      this.doc.transact(() => {
+        const langMeta: LanguageMetaY = new Y.Map()
+        langMeta.set('source', source)
+        langMeta.set('recordsWIPCount', 0)
+        langMeta.set('recordsNeedReviewCount', 0)
+        langMeta.set('recordsApprovedCount', 0)
+        langMeta.set('recordsRejectedCount', 0)
+        languages.set(language, langMeta)
+      })
+    }
+  }
+
+  private changeRecordCounts (
+    language: string,
+    { type, value, increment = 0, decrement = 0 }: {
+      type: LanguageRecordState
+      value?: number
+      increment?: number
+      decrement?: number
+    }
+  ): void {
+    const langMeta = this.fileMap.get('languages') as Y.Map<LanguageMetaY>
+    const langMetaData = langMeta.get(language)!
+
+    const key = type === 'wip'
+      ? 'recordsWIPCount'
+      : type === 'review-needed'
+        ? 'recordsNeedReviewCount'
+        : type === 'approved'
+          ? 'recordsApprovedCount'
+          : 'recordsRejectedCount'
+
+    if (value != null) {
+      langMetaData.set(key, value + increment - decrement)
     } else {
-      records[key][language] = {
-        discussions: [],
+      this.doc.transact(() => {
+        const currentCount = langMetaData.get(key) as number
+        langMetaData.set(key, currentCount + increment - decrement)
+      })
+    }
+  }
+
+  private addContributor (key: string, language: string): void {
+    const keyData = this.rawRecords.get(key)
+    if (keyData == null) {
+      throw new Error(`Key ${key} not found`)
+    }
+
+    const langRecord = this.getLangRecord(key, language)
+
+    const contributorIds = langRecord.get('contributorIds') as number[]
+    if (!contributorIds.includes(this.uid)) {
+      this.doc.transact(() => {
+        contributorIds.push(this.uid)
+        langRecord.set('contributorIds', contributorIds)
+      })
+    }
+  }
+
+  public createEmptyLangRecord (key: string, language: string, source: boolean): void {
+    const keyData = this.rawRecords.get(key)
+    if (keyData == null) {
+      throw new Error(`Key ${key} not found`)
+    }
+
+    const langRecords = keyData.get('languages') as Y.Map<LanguageRecordY>
+    if (langRecords.get(language) == null) {
+      this.doc.transact(() => {
+        this.introduceNewLanguage(language, source)
+
+        const newRecord: LanguageRecordY = new Y.Map()
+        newRecord.set('discussions', new Y.Array<Discussion>())
+        newRecord.set('updatedAt', new Date().toISOString())
+        newRecord.set('lastEditorId', this.uid)
+        newRecord.set('state', source ? 'source' : 'wip')
+
+        const langMeta = this.fileMap.get('languages') as Y.Map<LanguageMetaY>
+        const langMetaData = langMeta.get(language)!
+        const currentCount = langMetaData.get('recordsWIPCount') as number
+        langMetaData.set('recordsWIPCount', currentCount + 1)
+
+        this.fileMap.set('updatedAt', new Date().toISOString())
+        keyData.set('languages', langRecords)
+        keyData.set('updatedAt', new Date().toISOString())
+      })
+    }
+  }
+
+  public changeRecordState (key: string, lang: string, state: LanguageRecordState): void {
+    const langRecord = this.getLangRecord(key, lang)
+
+    this.doc.transact(() => {
+      const currentState = langRecord.get('state') as LanguageRecordState
+      if (currentState !== state) {
+        this.changeRecordCounts(lang, { type: currentState, decrement: 1 })
+        this.changeRecordCounts(lang, { type: state, increment: 1 })
+
+        langRecord.set('state', state)
+        langRecord.set('updatedAt', new Date().toISOString())
+        langRecord.set('lastEditorId', this.uid)
+        this.addContributor(key, lang)
+      }
+    })
+  }
+
+  public addDiscussion (key: string, lang: string, content: string): void {
+    const langRecord = this.getLangRecord(key, lang)
+
+    this.doc.transact(() => {
+      const discussions = langRecord.get('discussions') as Y.Array<Discussion>
+      const newDiscussion: Discussion = {
+        content,
+        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        lastEditorId: this.uid,
-        value: content,
-        state: 'review-needed'
+        authorId: this.uid
       }
-    }
-
-    const languages = this.rootMap.get('languages') as string[]
-
-    this.doc.transact(() => {
-      if (!languages.includes(language)) {
-        languages.push(language)
-        this.rootMap.set('languages', languages)
-      }
-      this.rootMap.set('updatedAt', new Date().toISOString())
-      this.rootMap.set('records', records)
+      discussions.push([newDiscussion])
+      langRecord.set('updatedAt', new Date().toISOString())
     })
   }
 
-  renameRecord (key: string, newKey: string): void {
-    const records = this.rootMap.get('records') as Record<string, ProjectRecord>
-    if (records[key] == null) {
-      return
+  public getLangRecordYText (key: string, language: string): Y.Text {
+    const keyData = this.rawRecords.get(key)
+    if (keyData == null) {
+      throw new Error(`Key ${key} not found`)
     }
-    records[newKey] = records[key]
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-    delete records[key]
-    this.doc.transact(() => {
-      this.rootMap.set('updatedAt', new Date().toISOString())
-      this.rootMap.set('records', records)
-    })
+
+    const langRecords = keyData.get('languages') as Y.Map<LanguageRecordY>
+    const langRecord = langRecords.get(language)
+    if (langRecord == null) {
+      throw new Error(`Language ${language} not found`)
+    }
+
+    return langRecord.get('value') as Y.Text
   }
 
-  deleteRecord (key: string, language: string): void {
-    const records = this.rootMap.get('records') as Record<string, ProjectRecord>
-    if (records[key] == null) {
-      return
-    }
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-    delete records[key][language]
-    this.doc.transact(() => {
-      this.rootMap.set('updatedAt', new Date().toISOString())
-      this.rootMap.set('records', records)
-    })
+  public get sourceLanguage (): string {
+    return this.fileMap.get('sourceLanguage') as string
   }
 
-  changeState (
-    key: string,
-    language: string,
-    state: 'review-needed' | 'approved' | 'rejected'
-  ): void {
-    const records = this.rootMap.get('records') as Record<string, ProjectRecord>
-    if (records[key] == null) {
-      return
-    }
-    if (records[key][language] == null) {
-      return
-    }
-    records[key][language].state = state
-    this.doc.transact(() => {
-      this.rootMap.set('updatedAt', new Date().toISOString())
-      this.rootMap.set('records', records)
-    })
-  }
-
-  addDiscussion (
-    key: string,
-    language: string,
-    content: string
-  ): void {
-    const records = this.rootMap.get('records') as Record<string, ProjectRecord>
-    if (records[key] == null) {
-      return
-    }
-    if (records[key][language] == null) {
-      return
-    }
-    records[key][language].discussions.push({
-      content,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      authorId: this.uid
-    })
-    this.doc.transact(() => {
-      this.rootMap.set('updatedAt', new Date().toISOString())
-      this.rootMap.set('records', records)
-    })
-  }
-
-  destroy (): void {
+  public destroy (): void {
     this.doc.destroy()
   }
 }

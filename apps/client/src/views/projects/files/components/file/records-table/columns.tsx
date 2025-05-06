@@ -1,4 +1,4 @@
-import type { LanguageRecord } from '@omnilate/schema'
+import type { ProjectRecord } from '@omnilate/schema'
 import type { ColumnDef } from '@tanstack/solid-table'
 
 import { Button } from '@/components/ui/button'
@@ -7,7 +7,8 @@ import TableColumnHeader from './table-column-header'
 
 export interface FlattenedRecord {
   key: string
-  raw: Record<string, LanguageRecord>
+  sourceLanguageValue: string
+  raw: ProjectRecord
 }
 
 export const columns: Array<ColumnDef<FlattenedRecord>> = [
@@ -19,11 +20,24 @@ export const columns: Array<ColumnDef<FlattenedRecord>> = [
     ),
     cell: (props) => (
       <div>
-        {props.getValue()}
+        {props.getValue() as string}
       </div>
     ),
     enableSorting: false,
     enableHiding: false
+  },
+  {
+    id: 'srcLang',
+    accessorKey: 'sourceLanguageValue',
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="Source" />
+    )
+  },
+  {
+    id: 'targetLang',
+    header: (props) => (
+      <TableColumnHeader column={props.column} title="Target" />
+    )
   },
   {
     id: 'actions',

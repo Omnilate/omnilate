@@ -1,18 +1,22 @@
 import type { RouteSectionProps } from '@solidjs/router'
 import type { Component } from 'solid-js'
-import { onCleanup, onMount, Show } from 'solid-js'
+import { onCleanup, onMount } from 'solid-js'
 
 import { CogIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
 import { useProject } from '@/stores/project'
+import { useGroupModel } from '@/stores/group'
 
 import Chat from './components/chat'
 
 interface ProjectsProps extends RouteSectionProps {}
 
 const ProjectsView: Component<ProjectsProps> = (props) => {
+  const { setCurrentGroupId, fetchGroups } = useGroupModel()
   const { setProject, projectMeta, yProject, clearModel } = useProject()
   onMount(async () => {
+    await fetchGroups()
+    setCurrentGroupId(+props.params.gid)
     await setProject(+props.params.pid, +props.params.gid)
   })
 
@@ -22,7 +26,7 @@ const ProjectsView: Component<ProjectsProps> = (props) => {
 
   return (
     <div class="flex flex-col size-full">
-      <div class="fixed bottom-0 right-0 bg-gray-300">
+      <div class="fixed bottom-0 right-0 bg-gray-300 pointer-events-none opacity-50">
         <div>Debug</div>
         <div>
           clientId:
@@ -32,14 +36,18 @@ const ProjectsView: Component<ProjectsProps> = (props) => {
           awareness:
           {JSON.stringify(yProject()?.awarenessMap)}
         </div>
-        <div>
+        {/* <div>
           files:
           {JSON.stringify(yProject()?.directoryRoot)}
-        </div>
-        <div>
+        </div> */}
+        {/* <div>
           file:
           {JSON.stringify(yProject()?.currentFileDoc()?.fileStore)}
-        </div>
+        </div> */}
+        {/* <div>
+          fullDoc:
+          {JSON.stringify(yProject()?.currentFileDoc())}
+        </div> */}
       </div>
 
       <div class="h-14 w-full b-b-(1px solid border) px-4 flex justify-between items-center bg-background shadow-sm">

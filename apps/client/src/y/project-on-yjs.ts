@@ -1,4 +1,8 @@
-import type { AwarenessInfo, ProjectChatMessage, ProjectDirectory, ProjectDirectoryY, ProjectFileInfo } from '@omnilate/schema'
+import type {
+  AwarenessInfo, Discussion, LanguageMetaY, LanguageRecordY, ProjectChatMessage,
+  ProjectDirectory, ProjectDirectoryY, ProjectFile, ProjectFileY,
+  ProjectRecordY
+} from '@omnilate/schema'
 import { WebsocketProvider } from '@omnilate/y-websocket'
 import type { Accessor, Setter } from 'solid-js'
 import { createSignal } from 'solid-js'
@@ -6,7 +10,6 @@ import { createStore, reconcile } from 'solid-js/store'
 import * as Y from 'yjs'
 
 import { getUserColor } from '@/utils/user-color'
-import { sleep } from '@/utils/sleep'
 
 import { FileOnYjs } from './file-on-yjs'
 
@@ -21,6 +24,7 @@ export class ProjectOnYjs {
   private readonly directoryTree: ProjectDirectoryY
   readonly awareness
   readonly awarenessMap: Record<number, AwarenessInfo>
+  private readonly syncPromise: Promise<void>
 
   constructor (readonly url: string, readonly projectId: number, private readonly uid: number) {
     this.projectDoc = new Y.Doc()
@@ -50,9 +54,14 @@ export class ProjectOnYjs {
     })
     // eslint-disable-next-line solid/reactivity
     this.directoryRoot = directoryRoot
-    this.directoryTree = this.projectDoc.getMap<ProjectDirectoryY | Y.Doc>('root')
+    this.directoryTree = this.projectDoc.getMap('root')
     this.projectDoc.on('update', () => {
-      setDirectoryRoot(reconcile(yDirToJSON(this.directoryTree), { key: `project-${this.projectId}-directory` }))
+      setDirectoryRoot(
+        reconcile(
+          this.directoryTree.toJSON() as ProjectDirectory,
+          { key: `project-${this.projectId}-directory` }
+        )
+      )
     })
 
     const [awarenessMap, setAwarenessMap] = createStore<Record<number, AwarenessInfo>>({})
@@ -80,9 +89,22 @@ export class ProjectOnYjs {
     const [currentFileDoc, setCurrentFileDoc] = createSignal<FileOnYjs>()
     this.currentFileDoc = currentFileDoc
     this.setCurrentFileDoc = setCurrentFileDoc
+
+    this.syncPromise = new Promise((resolve) => {
+      const interval = setInterval(() => {
+        console.log('Waiting for sync flag')
+        const syncFlag = this.projectDoc.getText('syncFlag')
+        if (syncFlag != null && syncFlag.length > 0) {
+          console.log('Sync flag received', syncFlag.toJSON())
+          clearInterval(interval)
+          resolve()
+        }
+      }, 250)
+    })
   }
 
-  sendChatMessage (content: string): void {
+  public async sendChatMessage (content: string): Promise<void> {
+    await this.syncPromise
     this.chatMessagesArray.push([{
       content,
       createdAt: new Date().toISOString(),
@@ -90,51 +112,106 @@ export class ProjectOnYjs {
     }])
   }
 
-  async addDirectory (path: string[], name: string): Promise<void> {
-    const target = await this.locateTargetMap(this.directoryTree, path)
-    const newDir = new Y.Map<ProjectDirectoryY | Y.Doc>()
-    target.set(name, newDir)
+  // #region file/dir
+
+  public async addDirectory (path: string[], name: string): Promise<void> {
+    await this.syncPromise
+    const target = await this.locateNode(this.directoryTree, path)
+    if (target.get('type') !== 'directory') {
+      throw new Error(`Cannot create directory in a file: /${path.join('/')}`)
+    }
+    const children = target.get('children') as Y.Map<ProjectDirectoryY | ProjectFileY>
+
+    const newDir: ProjectDirectoryY = new Y.Map()
+    newDir.set('type', 'directory')
+    newDir.set('children', new Y.Map<ProjectDirectoryY | ProjectFileY>())
+    children.set(name, newDir)
   }
 
-  async addFile (path: string[], name: string): Promise<void> {
-    const target = await this.locateTargetMap(this.directoryTree, path)
-    const newFile = new Y.Doc()
-    const rootMap = newFile.getMap('root')
-    rootMap.set('createdAt', new Date().toISOString())
-    rootMap.set('updatedAt', new Date().toISOString())
-    rootMap.set('languages', {})
-    rootMap.set('fileVersions', {})
-    target.set(name, newFile)
-  }
+  public async addFile (
+    path: string[],
+    name: string,
+    srcLang: string,
+    initData: Record<string, string>
+  ): Promise<void> {
+    await this.syncPromise
+    const target = await this.locateNode(this.directoryTree, path)
+    if (target.get('type') !== 'directory') {
+      throw new Error(`Cannot create file in a file: /${path.join('/')}`)
+    }
 
-  async moveFile (oldPath: string[], newPath: string[]): Promise<void> {
-    const oldTarget = await this.locateTargetMap(this.directoryTree, oldPath.slice(0, -1))
-    const newTarget = await this.locateTargetMap(this.directoryTree, newPath.slice(0, -1))
+    const children = target.get('children') as Y.Map<ProjectDirectoryY | ProjectFileY>
 
-    const fileName = oldPath[oldPath.length - 1]
-    const file = oldTarget.get(fileName) as Y.Doc
+    if (children.has(name)) {
+      throw new Error(`File already exists: /${path.join('/')}/${name}`)
+    }
+
     this.projectDoc.transact(() => {
-      newTarget.set(fileName, file)
-      oldTarget.delete(fileName)
+      const newFile: ProjectFileY = new Y.Map()
+      newFile.set('type', 'file')
+      newFile.set('createdAt', new Date().toISOString())
+      newFile.set('updatedAt', new Date().toISOString())
+      newFile.set('sourceLanguage', srcLang)
+      newFile.set('createdAt', new Date().toISOString())
+      newFile.set('updatedAt', new Date().toISOString())
+      newFile.set('languages', new Y.Map<LanguageMetaY>())
+
+      const records = new Y.Map<ProjectRecordY>()
+      for (const [key, value] of Object.entries(initData)) {
+        const record: ProjectRecordY = new Y.Map()
+        records.set(key, record)
+        record.set('updatedAt', new Date().toISOString())
+
+        const languageRecords = new Y.Map<LanguageRecordY>()
+        record.set('languages', languageRecords)
+
+        const languageRecord: LanguageRecordY = new Y.Map()
+        languageRecords.set(srcLang, languageRecord)
+        languageRecord.set('updatedAt', new Date().toISOString())
+        languageRecord.set('discussions', new Y.Array<Discussion>())
+        languageRecord.set('lastEditorId', this.uid)
+        languageRecord.set('value', new Y.Text(value))
+        languageRecord.set('state', 'source')
+      }
+
+      newFile.set('records', records)
+      children.set(name, newFile)
     })
   }
 
-  async deleteFile (path: string[]): Promise<void> {
-    const target = this.locateTargetMap(this.directoryTree, path.slice(0, -1))
-    const fileName = path[path.length - 1]
-    await this.projectDoc.transact(async () => {
-      (await target).delete(fileName)
+  public async moveNode (oldPos: string[], newPos: string[]): Promise<void> {
+    const oldParent = await this.locateNode(this.directoryTree, oldPos.slice(0, -1)) as ProjectDirectoryY
+    const newParent = await this.locateNode(this.directoryTree, newPos.slice(0, -1)) as ProjectDirectoryY
+
+    const nodeName = oldPos[oldPos.length - 1]
+    const oldParentDir = oldParent.get('children') as Y.Map<ProjectDirectoryY | ProjectFileY>
+    const node = oldParentDir.get(nodeName)!
+    const newParentDir = newParent.get('children') as Y.Map<ProjectDirectoryY | ProjectFileY>
+
+    this.projectDoc.transact(() => {
+      newParentDir.set(nodeName, node)
+      oldParentDir.delete(nodeName)
     })
   }
 
-  async workOnFile (path: string[]): Promise<void> {
-    const target = await this.locateTargetMap(this.directoryTree, path)
-    if (target instanceof Y.Doc) {
+  public async deleteNode (path: string[]): Promise<void> {
+    await this.syncPromise
+    const parent = await this.locateNode(this.directoryTree, path.slice(0, -1))
+    const nodeName = path[path.length - 1]
+    const parentDir = (await parent).get('children') as Y.Map<ProjectDirectoryY | ProjectFileY>
+
+    parentDir.delete(nodeName)
+  }
+
+  public async workOnFile (path: string[]): Promise<void> {
+    await this.syncPromise
+    const target = await this.locateNode(this.directoryTree, path)
+    if (target.get('type') === 'file') {
       if (this.currentFileDoc() != null) {
         this.currentFileDoc()?.destroy()
       }
 
-      const file = new FileOnYjs(target, this.uid)
+      const file = new FileOnYjs(this.projectDoc, target as ProjectFileY, this.uid, this.awareness)
       this.setCurrentFileDoc(file)
       this.awareness.setLocalStateField('active', true)
       this.awareness.setLocalStateField('workingOn', {
@@ -147,61 +224,33 @@ export class ProjectOnYjs {
     }
   }
 
-  leaveFile (): void {
+  public leaveFile (): void {
     this.awareness.setLocalStateField('active', false)
     this.awareness.setLocalStateField('workingOn', undefined)
     this.currentFileDoc()?.destroy()
     this.setCurrentFileDoc(undefined)
   }
 
-  focusAt (key: string, lang: string): void {}
+  // #endregion
 
-  defocus (): void {}
-
-  async locateTargetMap (dir: ProjectDirectoryY, path: string[]): Promise<ProjectDirectoryY> {
-    let target = dir
-    // for (const p of path) {
-    //   if (target.has(p)) {
-    //     target = target.get(p) as ProjectDirectoryY
-    //   } else {
-    //     throw new Error(`Path /${path.join('/')} not found`)
-    //   }
-    // }
-
-    // retry 3 times if not ready
-    for (let i = 0; i < 3; i++) {
-      try {
-        for (const p of path) {
-          if (target.has(p)) {
-            target = target.get(p) as ProjectDirectoryY
-          } else {
-            throw new Error(`Path /${path.join('/')} not found`)
-          }
-        }
-        return target
-      } catch (e: unknown) {
-        await sleep(500)
+  private async locateNode (dir: ProjectDirectoryY, path: string[]): Promise<ProjectDirectoryY | ProjectFileY> {
+    await this.syncPromise
+    return path.reduce<ProjectDirectoryY | ProjectFileY>((acc, p) => {
+      if (acc.get('type') !== 'directory') {
+        throw new Error(`Path /${path.join('/')} not found`)
       }
-    }
-    throw new Error(`Path /${path.join('/')} not found`)
-  }
-}
 
-function yDirToJSON (dir: ProjectDirectoryY): ProjectDirectory {
-  const result: ProjectDirectory = {
-    type: 'directory',
-    children: {}
-  }
-
-  for (const [key, value] of dir.entries()) {
-    if (value instanceof Y.Doc) {
-      result.children[key] = {
-        type: 'file'
+      const children = acc.get('children') as Y.Map<ProjectDirectoryY | ProjectFileY>
+      if (children.has(p)) {
+        return children.get(p) as ProjectDirectoryY
+      } else {
+        throw new Error(`Path /${path.join('/')} not found`)
       }
-    } else {
-      result.children[key] = yDirToJSON(value)
-    }
+    }, dir)
   }
 
-  return result
+  public async getMappedNode (path: string[]): Promise<ProjectDirectory | ProjectFile> {
+    const node = await this.locateNode(this.directoryTree, path)
+    return node.toJSON() as ProjectDirectory | ProjectFile
+  }
 }

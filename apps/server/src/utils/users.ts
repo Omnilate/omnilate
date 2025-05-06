@@ -22,8 +22,8 @@ export function toGroupResponse (user: UserWithGroups): UserGroupResponse {
     name: user.name,
     avatarUrl: user.avatarUrl,
     description: user.description,
-    role: user.groups[0].role,
-    joinedAt: user.groups[0].createdAt.toUTCString(),
+    role: user.groups[0]?.role ?? 'OBSERVER',
+    joinedAt: user.groups[0]?.createdAt?.toUTCString() ?? new Date().toUTCString(),
 
     createdAt: user.createdAt.toUTCString(),
     updatedAt: user.updatedAt.toUTCString()

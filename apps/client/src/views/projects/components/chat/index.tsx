@@ -16,9 +16,9 @@ const Chat: Component = () => {
   const { yProject, projectMeta } = useProject()
   const [editingMessage, setEditingMessage] = createSignal('')
 
-  const handleSendMessage = (e: Event): void => {
+  const handleSendMessage = async (e: Event): Promise<void> => {
     e.preventDefault()
-    yProject()?.sendChatMessage(editingMessage())
+    await yProject()?.sendChatMessage(editingMessage())
     setEditingMessage('')
   }
 

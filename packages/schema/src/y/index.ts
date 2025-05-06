@@ -16,11 +16,6 @@ export type AwarenessInfo = {
   }
 })
 
-// export interface File {
-//   type: 'i18next'
-//   path: string[]
-//   content:
-// }
 export interface Discussion {
   content: string
   createdAt: string
@@ -33,6 +28,8 @@ export interface ProjectStructure { // under the root map
   description: string
   createdAt: string
   updatedAt: string
+  syncFlag?: Y.Text
+  chatMessages: Y.Array<ProjectChatMessage>
 
   root: ProjectDirectory
 }
@@ -43,41 +40,94 @@ export interface ProjectChatMessage {
   authorId: number
 }
 
-export type ProjectDirectoryY = Y.Map<ProjectDirectoryY | Y.Doc>
+// #region Directory
+
+export interface YDirectoryStructure {
+  type: 'directory'
+  children: Y.Map<ProjectDirectoryY | ProjectFileY>
+}
+
+export type ProjectDirectoryY = Y.Map<YDirectoryStructure[keyof YDirectoryStructure]>
 
 export interface ProjectDirectory {
   type: 'directory'
-  children: Record<string, ProjectDirectory | ProjectFileInfo>
+  children: Record<string, ProjectDirectory | ProjectFile>
 }
 
-export interface ProjectFileInfo {
+// #endregion Directory
+// #region File
+
+export interface YFileStructure {
   type: 'file'
-}
-
-/** structure of subdoc, under the 'root' map */
-export interface ProjectFile {
   createdAt: string
   updatedAt: string
 
   sourceLanguage: string
-  languages: string[]
-  records: Record<string, ProjectRecord>
-  fileVersions: Record<string, ProjectFileVersion>
+  languages: Y.Map<LanguageMetaY>
+  records: Y.Map<ProjectRecordY>
 }
 
-export type ProjectRecord = Record<string, LanguageRecord>
+export type ProjectFileY = Y.Map<YFileStructure[keyof YFileStructure]>
+
+export interface ProjectFile {
+  type: 'file'
+  createdAt: string
+  updatedAt: string
+
+  sourceLanguage: string
+  languages: Record<string, LanguageMetaStructure>
+  records: Record<string, ProjectRecord>
+}
+
+// #endregion File
+
+// #region Language
+
+export interface LanguageMetaStructure {
+  source: boolean
+  recordsWIPCount: number
+  recordsNeedReviewCount: number
+  recordsApprovedCount: number
+  recordsRejectedCount: number
+}
+
+export type LanguageMetaY = Y.Map<LanguageMetaStructure[keyof LanguageMetaStructure]>
+
+// #endregion Language
+
+// #region Record
+
+export interface YRecordStructure {
+  languages: Y.Map<LanguageRecordY>
+  updatedAt: string
+}
+
+export type ProjectRecordY = Y.Map<YRecordStructure[keyof YRecordStructure]>
+
+export interface ProjectRecord {
+  languages: Record<string, LanguageRecord>
+  updatedAt: string
+}
+
+export type LanguageRecordState = 'source' | 'wip' | 'review-needed' | 'approved' | 'rejected'
+
+export interface YLanguageRecordStructure {
+  discussions: Y.Array<Discussion>
+  updatedAt: string
+  lastEditorId: number
+  contributorIds: number[]
+  value: Y.Text
+  state: LanguageRecordState
+}
+
+export type LanguageRecordY = Y.Map<YLanguageRecordStructure[keyof YLanguageRecordStructure]>
 
 export interface LanguageRecord {
   discussions: Discussion[]
   updatedAt: string
   lastEditorId: number
   value: string
-  state: 'review-needed' | 'approved' | 'rejected'
+  state: LanguageRecordState
 }
 
-export interface ProjectFileVersion {
-  description: string
-  createdAt: string
-  /** base64 */
-  serializedStateVector: string
-}
+// #endregion Record

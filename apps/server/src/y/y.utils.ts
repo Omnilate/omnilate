@@ -9,6 +9,7 @@ import * as map from 'lib0/map'
 import * as eventloop from 'lib0/eventloop'
 import { LeveldbPersistence } from 'y-leveldb'
 import type { WebSocket } from 'ws'
+import type { ProjectDirectoryY, ProjectFileY } from '@omnilate/schema'
 
 import { callbackHandler, isCallbackSet } from './callback.js'
 
@@ -25,7 +26,8 @@ const wsReadyState = {
 } as const
 
 // disable gc when using snapshots!
-const gcEnabled = process.env.GC !== 'false' && process.env.GC !== '0'
+// const gcEnabled = process.env.GC !== 'false' && process.env.GC !== '0'
+const gcEnabled = false
 const persistenceDir = process.env.YPERSISTENCE
 
 let persistence: { bindState: (docName: string, ydoc: WSSharedDoc) => void, writeState: (docName: string, ydoc: WSSharedDoc) => Promise<any>, provider: any } | null = null
@@ -39,6 +41,24 @@ if (typeof persistenceDir === 'string') {
       const newUpdates = Y.encodeStateAsUpdate(ydoc)
       await ldb.storeUpdate(docName, newUpdates)
       Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(persistedYdoc))
+
+      // set syncFlag
+      ydoc.transact(() => {
+        const syncFlag = ydoc.getText('syncFlag')
+        if (syncFlag.length === 0) {
+          syncFlag.insert(0, 'flagSet')
+        }
+      })
+
+      // init
+      const rootMap: ProjectDirectoryY = ydoc.getMap('root')
+      if (rootMap.get('type') == null) {
+        ydoc.transact(() => {
+          rootMap.set('type', 'directory')
+          rootMap.set('children', new Y.Map<ProjectFileY | ProjectDirectoryY>())
+        })
+      }
+
       ydoc.on('update', async (update) => {
         await ldb.storeUpdate(docName, update)
       })
@@ -203,11 +223,6 @@ export const setupWSConnection = (conn: WebSocket, req: IncomingMessage, { docNa
   conn.binaryType = 'arraybuffer'
   // get doc, initialize if it does not exist yet
   const doc = getYDoc(docName, gc)
-
-  // set sync flag
-  const syncFlag = doc.getText('syncFlag')
-  syncFlag.delete(0, syncFlag.length)
-  syncFlag.insert(0, 'congrats')
 
   doc.conns.set(conn, new Set())
   // listen and reply to events

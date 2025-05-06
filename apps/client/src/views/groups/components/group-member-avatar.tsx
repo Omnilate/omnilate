@@ -1,4 +1,4 @@
-import { Switch, Match } from 'solid-js'
+import { Switch, Match, Show } from 'solid-js'
 import type { Component } from 'solid-js'
 import type { TooltipTriggerProps } from '@kobalte/core/tooltip'
 
@@ -6,53 +6,45 @@ import type { UserGroupResource } from '@/apis/user'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import UserAvatar from '@/components/user-avatar'
 import { Badge } from '@/components/ui/badge'
+import { useProject } from '@/stores/project'
 
 type GroupMemberAvatarProps = UserGroupResource
 
 const GroupMemberAvatar: Component<GroupMemberAvatarProps> = (props) => {
+  const { awareness } = useProject()
+  const userAwarenessInfo = () => {
+    if (awareness() == null) {
+      return
+    }
+    return Object.values(awareness()!).find((value) => value.uid === props.id)
+  }
+
   return (
     <Tooltip>
       <TooltipTrigger
         as={(p: TooltipTriggerProps) => (
           <UserAvatar {...p}
             ref={p.ref as HTMLAnchorElement}
-            badge={<RoleBadge role={props.role} />}
-            class="size-14"
             user={props}
           />
         )}
       />
-      <TooltipContent>
-        <p>content</p>
+      <TooltipContent class="flex flex-col items-center gap-2">
+        <UserAvatar class="size-20" user={props} />
+        <Badge variant="secondary">{props.role}</Badge>
+        <div class="text-4 font-700">{props.name}</div>
+        <div>{props.description}</div>
+        <Show when={awareness()}>
+          <div>
+            {
+              userAwarenessInfo()!.active
+                ? `Working on /${userAwarenessInfo()!.workingOn.filePath.join('/')}`
+                : 'Idle'
+            }
+          </div>
+        </Show>
       </TooltipContent>
     </Tooltip>
-  )
-}
-
-const RoleBadge: Component<{ role: UserGroupResource['role'] }> = (props) => {
-  return (
-    <Switch>
-      <Match when={props.role === 'OWNER'}>
-        <Badge class="px-1" variant="default">
-          Owner
-        </Badge>
-      </Match>
-      <Match when={props.role === 'ADMIN'}>
-        <Badge class="px-1" variant="secondary">
-          Admin
-        </Badge>
-      </Match>
-      <Match when={props.role === 'MEMBER'}>
-        <Badge class="px-1" variant="outline">
-          Member
-        </Badge>
-      </Match>
-      <Match when={props.role === 'OBSERVER'}>
-        <Badge class="px-1" variant="outline">
-          Observer
-        </Badge>
-      </Match>
-    </Switch>
   )
 }
 

@@ -1,5 +1,5 @@
 import type { Accessor, Resource } from 'solid-js'
-import { createMemo, createResource, createSignal } from 'solid-js'
+import { createEffect, createMemo, createResource, createSignal, on } from 'solid-js'
 import type { AwarenessInfo } from '@omnilate/schema'
 
 import { getProject } from '@/apis/project'
@@ -7,6 +7,7 @@ import type { ProjectBaseResource } from '@/apis/project'
 import { ProjectOnYjs } from '@/y/project-on-yjs'
 import type { FileOnYjs } from '@/y/file-on-yjs'
 import { getGroupMember } from '@/apis/groups'
+import { putRecentProject } from '@/apis/user'
 import type { UserGroupResource } from '@/apis/user'
 
 import { useUserModel } from './user'
@@ -62,6 +63,17 @@ export const useProject = (): ProjectStoreReturnType => {
 
       return await getGroupMember(project.groupId, user.id)
     }
+  )
+
+  createEffect(
+    on(
+      projectMeta,
+      async (meta, prev) => {
+        if ((meta != null) && meta.id !== prev?.id) {
+          await putRecentProject(meta.id)
+        }
+      }
+    )
   )
 
   return {

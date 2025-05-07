@@ -1,6 +1,7 @@
 import type { Component } from 'solid-js'
+import { A } from '@solidjs/router'
 
-import { BellIcon, CogIcon, LanguageIcon } from '@/assets/icons'
+import { BellIcon, CogIcon, HomeIcon, LanguageIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
 import { PopoverTrigger, PopoverContent, Popover } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,11 @@ const Controls: Component<ControlsProps> = (props) => {
 
   return (
     <div class="flex items-center justify-around h-8 b-t-(1px solid border)">
+      <A class="color-gray! hover:color-primary! transition-color h-4" href="/">
+        <Icon>
+          <HomeIcon />
+        </Icon>
+      </A>
       <Icon class="color-gray! hover:color-primary! transition-color">
         <BellIcon />
       </Icon>

@@ -4,8 +4,8 @@ import { onCleanup, onMount } from 'solid-js'
 
 import { CogIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
-import { useProject } from '@/stores/project'
 import { useGroupModel } from '@/stores/group'
+import { useProject } from '@/stores/project'
 
 import Chat from './components/chat'
 
@@ -36,18 +36,6 @@ const ProjectsView: Component<ProjectsProps> = (props) => {
           awareness:
           {JSON.stringify(yProject()?.awarenessMap)}
         </div>
-        {/* <div>
-          files:
-          {JSON.stringify(yProject()?.directoryRoot)}
-        </div> */}
-        {/* <div>
-          file:
-          {JSON.stringify(yProject()?.currentFileDoc()?.fileStore)}
-        </div> */}
-        {/* <div>
-          fullDoc:
-          {JSON.stringify(yProject()?.currentFileDoc())}
-        </div> */}
       </div>
 
       <div class="h-14 w-full b-b-(1px solid border) px-4 flex justify-between items-center bg-background shadow-sm">

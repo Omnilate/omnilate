@@ -65,10 +65,18 @@
     "TITLE": "Create Group"
   },
   "FREETIER_USER": "Free Tier",
+  "ME": {
+    "DESC_PLACEHOLDER": "No description"
+  },
+  "RECENTPROJ": {
+    "EMPTY": "No recently visited projects yet",
+    "TITLE": "Recent Projects"
+  },
   "SIDE": {
     "GROUPS": {
       "ADD": "Add",
       "TITLE": "Your Groups"
-    }
+    },
+    "NEWPROJ": "Start a New Project"
   }
 }

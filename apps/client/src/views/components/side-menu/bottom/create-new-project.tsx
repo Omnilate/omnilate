@@ -4,15 +4,13 @@ import type { Component } from 'solid-js'
 import { PlusIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/utils/i18n'
 
 import NewProjectDialog from './new-project-dialog'
 
-interface CreateNewProjectProps {
-  foo: string
-}
-
-const CreateNewProject: Component<CreateNewProjectProps> = (props) => {
+const CreateNewProject: Component = () => {
   const [dialogShown, setDialogShown] = createSignal(false)
+  const t = useI18n()
 
   const handleOpenDialog = (): void => {
     setDialogShown(true)
@@ -28,7 +26,7 @@ const CreateNewProject: Component<CreateNewProjectProps> = (props) => {
         <Icon>
           <PlusIcon />
         </Icon>
-        <span>Start a New Project</span>
+        <span>{t.SIDE.NEWPROJ()}</span>
       </Button>
     </div>
   )

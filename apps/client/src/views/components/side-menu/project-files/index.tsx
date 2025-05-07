@@ -35,8 +35,8 @@ const ProjectFiles: Component = () => {
         <AccordionTrigger class="p-4" onClick={handleTriggerClick}>
           <div class="flex flex-1 pr-2 items-center justify-between">
             <div class="flex flex-1 items-center gap-2">
-              <Badge>Project</Badge>
-              <span>{projectMeta()?.name}</span>
+              <Badge class="text-(xs)">Files</Badge>
+              <div>{projectMeta()?.name}</div>
             </div>
             <Button
               class="flex items-center gap-1 rounded-full px-2 h-6"

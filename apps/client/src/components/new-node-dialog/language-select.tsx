@@ -1,3 +1,4 @@
+import { createMemo } from 'solid-js'
 import type { Component } from 'solid-js'
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
@@ -87,6 +88,7 @@ export const supportedLanguages: LanguageOption[] = [
 export type SupportedLanguageCode = typeof supportedLanguages[number]['code']
 
 interface LanguageSelectProps {
+  languages?: SupportedLanguageCode[]
   value: SupportedLanguageCode
   onChange: (value: SupportedLanguageCode) => void
 }
@@ -95,6 +97,13 @@ const LanguageSelect: Component<LanguageSelectProps> = (props) => {
   const selectedLanguage = (): LanguageOption => {
     return supportedLanguages.find((lang) => lang.code === props.value)!
   }
+  const shownLanguages = createMemo(() => {
+    if (props.languages == null) {
+      return supportedLanguages
+    }
+
+    return supportedLanguages.filter((lang) => props.languages!.includes(lang.code))
+  })
 
   const handleSelectValueChange = (value: LanguageOption | null): void => {
     if (value == null) {
@@ -112,7 +121,7 @@ const LanguageSelect: Component<LanguageSelectProps> = (props) => {
   return (
     <Select<LanguageOption>
       multiple={false}
-      options={supportedLanguages}
+      options={shownLanguages()}
       value={selectedLanguage()}
       itemComponent={(props) => (
         <SelectItem item={props.item}>

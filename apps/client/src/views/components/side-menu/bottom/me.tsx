@@ -16,7 +16,13 @@ const Me: Component = () => {
         <UserAvatar user={userModel} />
         <div class="flex flex-col justify-between">
           <div class="text-primary font-bold">{userModel.name}</div>
-          <div class="text-sm">{t.FREETIER_USER()}</div>
+          <div class="text-sm">
+            {
+              userModel.description === ''
+                ? t.ME.DESC_PLACEHOLDER()
+                : userModel.description
+            }
+          </div>
         </div>
       </div>
       <Icon>

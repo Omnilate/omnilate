@@ -65,10 +65,18 @@
     "TITLE": "创建团队"
   },
   "FREETIER_USER": "普通用户",
+  "ME": {
+    "DESC_PLACEHOLDER": "暂无简介"
+  },
+  "RECENTPROJ": {
+    "EMPTY": "暂无内容",
+    "TITLE": "最近访问过的项目"
+  },
   "SIDE": {
     "GROUPS": {
       "ADD": "添加",
       "TITLE": "你的团队"
-    }
+    },
+    "NEWPROJ": "创建新项目"
   }
 }

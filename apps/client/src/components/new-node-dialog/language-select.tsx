@@ -1,91 +1,10 @@
 import { createMemo } from 'solid-js'
 import type { Component } from 'solid-js'
 
+import { supportedLanguages } from '@/utils/supported-languages'
+import type { LanguageOption, SupportedLanguageCode } from '@/utils/supported-languages'
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-
-interface LanguageOption {
-  code: string
-  nativeName: string
-  names: Record<string, string>
-  icon: string
-}
-
-export const supportedLanguages: LanguageOption[] = [
-  {
-    code: 'en',
-    nativeName: 'English',
-    names: {
-      en: 'English'
-    },
-    icon: '🇺🇸'
-  },
-  {
-    code: 'zh-CN',
-    nativeName: '简体中文',
-    names: {
-      en: 'Chinese (Simplified)'
-    },
-    icon: '🇨🇳'
-  },
-  {
-    code: 'zh-TW',
-    nativeName: '繁體中文',
-    names: {
-      en: 'Chinese (Traditional)'
-    },
-    icon: '🇨🇳'
-  },
-  {
-    code: 'ja',
-    nativeName: '日本語',
-    names: {
-      en: 'Japanese'
-    },
-    icon: '🇯🇵'
-  },
-  {
-    code: 'fr',
-    nativeName: 'Français',
-    names: {
-      en: 'French'
-    },
-    icon: '🇫🇷'
-  },
-  {
-    code: 'de',
-    nativeName: 'Deutsch',
-    names: {
-      en: 'German'
-    },
-    icon: '🇩🇪'
-  },
-  {
-    code: 'es',
-    nativeName: 'Español',
-    names: {
-      en: 'Spanish'
-    },
-    icon: '🇪🇸'
-  },
-  {
-    code: 'ru',
-    nativeName: 'Русский',
-    names: {
-      en: 'Russian'
-    },
-    icon: '🇷🇺'
-  },
-  {
-    code: 'ko',
-    nativeName: '한국어',
-    names: {
-      en: 'Korean'
-    },
-    icon: '🇰🇷'
-  }
-] as const
-
-export type SupportedLanguageCode = typeof supportedLanguages[number]['code']
 
 interface LanguageSelectProps {
   languages?: SupportedLanguageCode[]
@@ -115,7 +34,7 @@ const LanguageSelect: Component<LanguageSelectProps> = (props) => {
       return
     }
 
-    props.onChange(value.code)
+    props.onChange(value.code as SupportedLanguageCode)
   }
 
   return (

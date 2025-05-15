@@ -37,7 +37,6 @@ const ProjectsView: Component<ProjectsProps> = (props) => {
           {JSON.stringify(yProject()?.awarenessMap)}
         </div>
       </div>
-
       <div class="h-14 w-full b-b-(1px solid border) px-4 flex justify-between items-center bg-background shadow-sm">
         <div class="flex items-center gap-2">
           <span class="text-xl font-500">{projectMeta()?.name}</span>

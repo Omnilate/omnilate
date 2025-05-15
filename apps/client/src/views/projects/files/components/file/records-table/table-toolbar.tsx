@@ -2,6 +2,7 @@ import type { Table } from '@tanstack/solid-table'
 import type { Component } from 'solid-js'
 
 import { TextField, TextFieldRoot } from '@/components/ui/textfield'
+import { Button } from '@/components/ui/button'
 
 import type { FlattenedRecord } from './columns'
 import FilterSelect from './filter-select'
@@ -42,7 +43,7 @@ const TableToolbar: Component<TableToolbarProps> = (props) => {
         />
       </TextFieldRoot>
       <div class="flex items-center gap-2">
-        {/* <AddRecordPopover /> */}
+        <Button>Export</Button>
         <FilterSelect
           options={filteredStatusList()}
           onChange={handleFilterChange}

@@ -1,4 +1,5 @@
 import type {
+  AwarenessInfo,
   Discussion, LanguageMetaY, LanguageRecordState,
   LanguageRecordY, ProjectFile, ProjectFileY, ProjectRecordY
 } from '@omnilate/schema'
@@ -34,6 +35,102 @@ export class FileOnYjs {
     }
     handleUpdate()
     this.fileMap.observeDeep(handleUpdate)
+  }
+
+  public workOnRecord (key: string): void {
+    const currentAwareness = this.awareness.getLocalState() as AwarenessInfo
+    if (!currentAwareness.active) {
+      return
+    }
+    this.awareness.setLocalState({
+      ...currentAwareness,
+      active: true,
+      workingOn: {
+        ...currentAwareness.workingOn,
+        key,
+        language: '',
+        cursor: {
+          index: 0,
+          length: 0
+        }
+      }
+    } satisfies AwarenessInfo)
+  }
+
+  public leaveRecord (): void {
+    const currentAwareness = this.awareness.getLocalState() as AwarenessInfo
+    if (!currentAwareness.active) {
+      return
+    }
+    this.awareness.setLocalState({
+      ...currentAwareness,
+      active: true,
+      workingOn: {
+        ...currentAwareness.workingOn,
+        key: '',
+        language: '',
+        cursor: {
+          index: 0,
+          length: 0
+        }
+      }
+    } satisfies AwarenessInfo)
+  }
+
+  public workOnLanguage (language: string): void {
+    const currentAwareness = this.awareness.getLocalState() as AwarenessInfo
+    if (!currentAwareness.active) {
+      return
+    }
+    this.awareness.setLocalState({
+      ...currentAwareness,
+      active: true,
+      workingOn: {
+        ...currentAwareness.workingOn,
+        language,
+        cursor: {
+          index: 0,
+          length: 0
+        }
+      }
+    } satisfies AwarenessInfo)
+  }
+
+  public leaveLanguage (): void {
+    const currentAwareness = this.awareness.getLocalState() as AwarenessInfo
+    if (!currentAwareness.active) {
+      return
+    }
+    this.awareness.setLocalState({
+      ...currentAwareness,
+      active: true,
+      workingOn: {
+        ...currentAwareness.workingOn,
+        language: '',
+        cursor: {
+          index: 0,
+          length: 0
+        }
+      }
+    } satisfies AwarenessInfo)
+  }
+
+  public moveCursor (index: number, length: number): void {
+    const currentAwareness = this.awareness.getLocalState() as AwarenessInfo
+    if (!currentAwareness.active) {
+      return
+    }
+    this.awareness.setLocalState({
+      ...currentAwareness,
+      active: true,
+      workingOn: {
+        ...currentAwareness.workingOn,
+        cursor: {
+          index,
+          length
+        }
+      }
+    } satisfies AwarenessInfo)
   }
 
   // #region Key

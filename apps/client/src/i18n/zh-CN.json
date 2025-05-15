@@ -70,6 +70,9 @@
   },
   "RECENTPROJ": {
     "EMPTY": "暂无内容",
+    "ITEM": {
+      "OWNED_BY": "团队{{groupName}}的项目"
+    },
     "TITLE": "最近访问过的项目"
   },
   "SIDE": {

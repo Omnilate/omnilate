@@ -12,15 +12,6 @@ interface PaginationBarProps<TData> {
 const PaginationBar = <TData,>(props: PaginationBarProps<TData>): JSX.Element => {
   return (
     <div class="flex w-full flex-col-reverse items-center justify-between gap-4 overflow-auto px-2 py-1 sm:flex-row mt-2">
-      <div class="flex-1 whitespace-nowrap text-sm text-muted-foreground">
-        {props.table.getFilteredSelectedRowModel().rows.length}
-        {' '}
-        of
-        {' '}
-        {props.table.getFilteredRowModel().rows.length}
-        {' '}
-        row(s) selected.
-      </div>
       <div class="flex flex-col-reverse items-center gap-4 sm:flex-row">
         <div class="flex items-center space-x-2">
           <p class="whitespace-nowrap text-sm font-medium">Rows per page</p>

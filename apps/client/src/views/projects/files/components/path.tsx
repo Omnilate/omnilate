@@ -34,7 +34,7 @@ const Path: Component<PathProps> = (props) => {
   })
 
   return (
-    <div class="flex items-center w-full p-4 gap-2">
+    <div class="flex items-center w-full gap-2">
       <For each={nodesOnPath()}>
         {(node) => {
           return (

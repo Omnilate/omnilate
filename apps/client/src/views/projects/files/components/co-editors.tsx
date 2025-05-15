@@ -6,15 +6,13 @@ import { useGroupModel } from '@/stores/group'
 import { useProject } from '@/stores/project'
 import GroupMemberAvatar from '@/views/groups/components/group-member-avatar'
 
-const CoEditors: Component = (props) => {
+const CoEditors: Component = () => {
   const { currentGroup } = useGroupModel()
   const { awareness } = useProject()
 
   const [coEditors] = createResource(
     () => ({ awareness: awareness(), group: currentGroup() }),
     async ({ awareness, group }) => {
-      console.log('awareness', awareness)
-      console.log('group', group)
       if (group == null || awareness == null) {
         return
       }
@@ -38,9 +36,11 @@ const CoEditors: Component = (props) => {
   return (
     <div class="flex">
       <Suspense fallback="loading">
-        <For each={coEditors()}>
-          {GroupMemberAvatar}
-        </For>
+        <div class="flex gap-2 items-center">
+          <For each={coEditors()}>
+            {(editor) => (<GroupMemberAvatar {...editor} />)}
+          </For>
+        </div>
       </Suspense>
     </div>
   )

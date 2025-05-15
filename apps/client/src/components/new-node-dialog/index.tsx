@@ -10,11 +10,11 @@ import { iv } from '@/utils/input-value'
 import { fileParsers } from '@/utils/i18n'
 import type { FileType } from '@/utils/i18n'
 import { showToaster } from '@/utils/toaster'
+import type { SupportedLanguageCode } from '@/utils/supported-languages'
 
 import PathSelect from '../path-select'
 import { Switch, SwitchControl, SwitchLabel, SwitchThumb } from '../ui/switch'
 import LanguageSelect from './language-select'
-import type { SupportedLanguageCode } from './language-select'
 
 interface NewNodeDialogProps {
   show: boolean

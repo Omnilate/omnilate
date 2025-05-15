@@ -219,7 +219,10 @@ export class ProjectOnYjs {
         key: '',
         language: '',
         page: 0,
-        cursorOffset: 0
+        cursor: {
+          index: 0,
+          length: 0
+        }
       })
     }
   }

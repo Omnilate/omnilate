@@ -7,8 +7,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import UserAvatar from '@/components/user-avatar'
 import { Badge } from '@/components/ui/badge'
 import { useProject } from '@/stores/project'
+import { cn } from '@/utils/cn'
 
-type GroupMemberAvatarProps = UserGroupResource
+interface GroupMemberAvatarProps extends UserGroupResource {
+  class?: string
+}
 
 const GroupMemberAvatar: Component<GroupMemberAvatarProps> = (props) => {
   const { awareness } = useProject()
@@ -25,12 +28,13 @@ const GroupMemberAvatar: Component<GroupMemberAvatarProps> = (props) => {
         as={(p: TooltipTriggerProps) => (
           <UserAvatar {...p}
             ref={p.ref as HTMLAnchorElement}
+            class={cn(props.class, 'size-8')}
             user={props}
           />
         )}
       />
       <TooltipContent class="flex flex-col items-center gap-2">
-        <UserAvatar class="size-20" user={props} />
+        <UserAvatar class="size-18" user={props} />
         <Badge variant="secondary">{props.role}</Badge>
         <div class="text-4 font-700">{props.name}</div>
         <div>{props.description}</div>

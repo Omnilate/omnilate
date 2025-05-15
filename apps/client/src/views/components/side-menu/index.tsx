@@ -8,6 +8,7 @@ import AuthDialog from './auth-dialog'
 import Groups from './groups'
 import Bottom from './bottom'
 import ProjectFiles from './project-files'
+import FileRecords from './file-records'
 
 const SideMenu: Component = () => {
   const { authenticated } = useAuthModel()
@@ -23,10 +24,11 @@ const SideMenu: Component = () => {
           <Accordion collapsible
             multiple
             class="w-full"
-            defaultValue={['groups']}
+            defaultValue={['groups', 'project-files']}
           >
             <Groups />
             <ProjectFiles />
+            <FileRecords />
           </Accordion>
         </Show>
       </div>

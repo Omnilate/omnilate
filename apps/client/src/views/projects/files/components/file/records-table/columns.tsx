@@ -2,6 +2,8 @@ import type { ProjectRecord } from '@omnilate/schema'
 import type { ColumnDef } from '@tanstack/solid-table'
 
 import { Button } from '@/components/ui/button'
+import { ChevronRightIcon } from '@/assets/icons'
+import Icon from '@/components/icon'
 
 import TableColumnHeader from './table-column-header'
 
@@ -34,16 +36,16 @@ export const columns: Array<ColumnDef<FlattenedRecord>> = [
     )
   },
   {
-    id: 'targetLang',
-    header: (props) => (
-      <TableColumnHeader column={props.column} title="Target" />
-    )
-  },
-  {
     id: 'actions',
     header: (props) => (
-      <TableColumnHeader column={props.column} title="Actions" />
+      <TableColumnHeader column={props.column} title="" />
     ),
-    cell: (props) => <Button>Edit</Button>
+    cell: (props) => (
+      <Button as="a" href={`?record=${props.row.original.key}`} variant="ghost">
+        <Icon>
+          <ChevronRightIcon />
+        </Icon>
+      </Button>
+    )
   }
 ]

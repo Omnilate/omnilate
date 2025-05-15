@@ -50,10 +50,18 @@ const ProjectFiles: Component = () => {
           </div>
         </AccordionTrigger>
         <AccordionContent>
-          <DirTree
-            node={yProject()?.directoryRoot ?? { type: 'directory', children: {} }}
-            path={[]}
-          />
+          <Show when={Object.keys(yProject()?.directoryRoot?.children ?? {}).length}
+            fallback={(
+              <div class="flex items-center justify-center h-full">
+                <div class="text-sm text-muted-foreground">No files</div>
+              </div>
+            )}
+          >
+            <DirTree
+              node={yProject()?.directoryRoot ?? { type: 'directory', children: {} }}
+              path={[]}
+            />
+          </Show>
         </AccordionContent>
       </AccordionItem>
     </Show>

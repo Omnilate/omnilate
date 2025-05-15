@@ -27,7 +27,7 @@ const RootView: Component<RootProps> = (props) => {
 
   return (
     <Resizable class="size-full rounded-lg border hide-scrollbar" orientation="horizontal">
-      <ResizablePanel class="size-full" initialSize="300px" minSize="200px">
+      <ResizablePanel initialSize="300px" minSize="300px">
         <SideMenu />
       </ResizablePanel>
       <ResizableHandle />

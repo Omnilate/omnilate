@@ -12,7 +12,10 @@ export type AwarenessInfo = {
     key: string
     language: string
     page: number
-    cursorOffset: number
+    cursor: {
+      index: number
+      length: number
+    }
   }
 })
 
@@ -109,7 +112,7 @@ export interface ProjectRecord {
   updatedAt: string
 }
 
-export type LanguageRecordState = 'source' | 'wip' | 'review-needed' | 'approved' | 'rejected'
+export type LanguageRecordState = 'source' | 'wip' | 'review-needed' | 'reviewed' | 'approved' | 'rejected'
 
 export interface YLanguageRecordStructure {
   discussions: Y.Array<Discussion>

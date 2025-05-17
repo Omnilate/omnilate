@@ -26,6 +26,7 @@ const FileView: Component<FileViewProps> = (props) => {
   const fileName = (): string => props.filePath.at(-1)!
 
   createEffect(() => {
+    console.log('FileView: filePath', props.filePath)
     void yProject()?.workOnFile(props.filePath)
   })
 
@@ -62,7 +63,13 @@ const FileView: Component<FileViewProps> = (props) => {
       </div>
       <Switch>
         <Match when={props.recordName}>
-          <RecordView key={props.recordName ?? 'never'} awareness={yProject()?.awarenessMap ?? {}} file={file()} />
+          <RecordView
+            key={props.recordName ?? 'never'}
+            awareness={yProject()?.awarenessMap ?? {}}
+            clientId={yProject()?.projectDoc.clientID ?? ''}
+            file={file()}
+            filePath={props.filePath}
+          />
         </Match>
         <Match when={file()}>
           <div class="flex gap-4">

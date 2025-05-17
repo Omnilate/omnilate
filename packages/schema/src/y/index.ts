@@ -12,7 +12,7 @@ export type AwarenessInfo = {
     key: string
     language: string
     page: number
-    cursor: {
+    cursor?: {
       index: number
       length: number
     }

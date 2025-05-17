@@ -3,29 +3,31 @@ import Quill from 'quill'
 import QuillCursors from 'quill-cursors'
 import type IQuillRange from 'quill-cursors/dist/quill-cursors/i-range'
 import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 import type { Component } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onMount } from 'solid-js'
-import { createStore } from 'solid-js/store'
+import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
+import { unwrap } from 'solid-js/store'
 import { QuillBinding } from 'y-quill'
 import type * as Y from 'yjs'
 
 import type { UserBaseResource } from '@/apis/user'
 import { getUser } from '@/apis/user'
+import type { FileOnYjs } from '@/y/file-on-yjs'
 
 Quill.register('modules/cursors', QuillCursors)
 
 interface QuillEditorProps {
+  file?: FileOnYjs
   text?: Y.Text
   awarenessMap: Record<string | number, AwarenessInfo>
-  onLocalCursorChange: (index: number, length: number) => void
+  onLocalCursorChange: (range?: { index: number, length: number }) => void
   localClientId: string | number
   key: string
   language: string
-  filePath: string
+  filePath: string[]
 }
 
-const [uidUserMap, setUidUserMap] = createStore<Record<number, UserBaseResource>>({})
+const [uidUserMap, setUidUserMap] = createSignal<Record<number, UserBaseResource>>({})
 
 const QuillEditor: Component<QuillEditorProps> = (props) => {
   const [quillEl, setQuillEl] = createSignal<HTMLDivElement | null>(null)
@@ -33,9 +35,15 @@ const QuillEditor: Component<QuillEditorProps> = (props) => {
   let quill: Quill
   let cursors: QuillCursors
 
+  createEffect(() => {
+    props.file?.workOnLanguage(props.language)
+  })
+
+  onCleanup(() => { props.file?.leaveLanguage() })
+
   onMount(() => {
     quill = new Quill(quillEl()!, {
-      theme: 'snow',
+      theme: 'bubble',
       modules: {
         cursors: true
       }
@@ -44,13 +52,11 @@ const QuillEditor: Component<QuillEditorProps> = (props) => {
     cursors = quill.getModule('cursors') as QuillCursors
 
     quill.on('selection-change', (range, _oldRange, source) => {
-      console.log('Selection changed', range, source)
       if (source === 'user') {
-        props.onLocalCursorChange(range.index, range.length)
+        props.onLocalCursorChange(range)
       }
     })
   })
-
   createEffect(() => {
     if (props.text != null && binding() == null) {
       setBinding(new QuillBinding(props.text, quill))
@@ -61,14 +67,19 @@ const QuillEditor: Component<QuillEditorProps> = (props) => {
     const legal: Record<number | string, AwarenessInfo> = {}
     for (const [id, info] of Object.entries(props.awarenessMap)) {
       if (
+        // eslint-disable-next-line eqeqeq
+        id != props.localClientId &&
         info.active &&
+        info.workingOn != null &&
         info.workingOn.filePath.every((node, index) => props.filePath[index] === node) &&
         info.workingOn.key === props.key &&
         info.workingOn.language === props.language
       ) {
-        legal[id] = info
+        const _manualDep = info.workingOn.cursor?.index
+        legal[id] = unwrap(info)
       }
     }
+    console.log('legalClients', legal)
     return legal
   })
 
@@ -80,8 +91,8 @@ const QuillEditor: Component<QuillEditorProps> = (props) => {
           return
         }
 
-        const cursorMap = cursors.cursors()
-        const cursorIds = cursorMap.map((cursor) => cursor.id)
+        const cursorList = cursors.cursors()
+        const cursorIds = cursorList.map((cursor) => cursor.id)
         const onlineClientIds = Object.keys(clientList)
 
         for (const cursorId of cursorIds) {
@@ -96,20 +107,30 @@ const QuillEditor: Component<QuillEditorProps> = (props) => {
             continue
           }
 
-          if (!Object.keys(uidUserMap).includes(info.uid.toString())) {
+          if (!Object.keys(uidUserMap()).includes(info.uid.toString())) {
             getUser(info.uid)
               .then((user) => {
                 setUidUserMap((prev) => ({
                   ...prev,
                   [info.uid]: user
                 }))
+                cursors.removeCursor(clientId)
+                cursors.createCursor(clientId, user.name, info.color)
+                if (info.active && info.workingOn.cursor != null) {
+                  cursors.moveCursor(clientId, info.workingOn.cursor as IQuillRange)
+                }
               })
               .catch((_err) => {})
           }
 
-          cursors.createCursor(clientId, uidUserMap[info.uid]?.name ?? info.uid.toString(), info.color)
+          cursors.createCursor(clientId, uidUserMap()[info.uid]?.name ?? info.uid.toString(), info.color)
           if (info.active) {
-            cursors.moveCursor(clientId, info.workingOn.cursor as IQuillRange)
+            if (info.workingOn.cursor != null) {
+              cursors.toggleFlag(clientId, true)
+              cursors.moveCursor(clientId, info.workingOn.cursor as IQuillRange)
+            } else {
+              cursors.toggleFlag(clientId, false)
+            }
           }
         }
       }
@@ -117,8 +138,8 @@ const QuillEditor: Component<QuillEditorProps> = (props) => {
   )
 
   return (
-    <div>
-      <div ref={setQuillEl} />
+    <div class="rounded-xl b-(border solid) w-full">
+      <div ref={setQuillEl} class="overflow-visible" />
     </div>
   )
 }

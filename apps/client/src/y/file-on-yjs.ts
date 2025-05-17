@@ -42,19 +42,13 @@ export class FileOnYjs {
     if (!currentAwareness.active) {
       return
     }
-    this.awareness.setLocalState({
-      ...currentAwareness,
-      active: true,
-      workingOn: {
-        ...currentAwareness.workingOn,
-        key,
-        language: '',
-        cursor: {
-          index: 0,
-          length: 0
-        }
-      }
-    } satisfies AwarenessInfo)
+
+    this.awareness.setLocalStateField('active', true)
+    this.awareness.setLocalStateField('workingOn', {
+      ...currentAwareness.workingOn,
+      key,
+      cursor: undefined
+    })
   }
 
   public leaveRecord (): void {
@@ -62,19 +56,14 @@ export class FileOnYjs {
     if (!currentAwareness.active) {
       return
     }
-    this.awareness.setLocalState({
-      ...currentAwareness,
-      active: true,
-      workingOn: {
-        ...currentAwareness.workingOn,
-        key: '',
-        language: '',
-        cursor: {
-          index: 0,
-          length: 0
-        }
-      }
-    } satisfies AwarenessInfo)
+
+    this.awareness.setLocalStateField('active', true)
+    this.awareness.setLocalStateField('workingOn', {
+      ...currentAwareness.workingOn,
+      key: '',
+      language: '',
+      cursor: undefined
+    })
   }
 
   public workOnLanguage (language: string): void {
@@ -82,18 +71,13 @@ export class FileOnYjs {
     if (!currentAwareness.active) {
       return
     }
-    this.awareness.setLocalState({
-      ...currentAwareness,
-      active: true,
-      workingOn: {
-        ...currentAwareness.workingOn,
-        language,
-        cursor: {
-          index: 0,
-          length: 0
-        }
-      }
-    } satisfies AwarenessInfo)
+
+    this.awareness.setLocalStateField('active', true)
+    this.awareness.setLocalStateField('workingOn', {
+      ...currentAwareness.workingOn,
+      language,
+      cursor: undefined
+    })
   }
 
   public leaveLanguage (): void {
@@ -101,21 +85,21 @@ export class FileOnYjs {
     if (!currentAwareness.active) {
       return
     }
-    this.awareness.setLocalState({
-      ...currentAwareness,
-      active: true,
-      workingOn: {
-        ...currentAwareness.workingOn,
-        language: '',
-        cursor: {
-          index: 0,
-          length: 0
-        }
-      }
-    } satisfies AwarenessInfo)
+
+    this.awareness.setLocalStateField('active', true)
+    this.awareness.setLocalStateField('workingOn', {
+      ...currentAwareness.workingOn,
+      language: '',
+      cursor: undefined
+    })
   }
 
-  public moveCursor (index: number, length: number): void {
+  public moveCursor (
+    filePath: string[],
+    key: string,
+    language: string,
+    range?: { index: number, length: number }
+  ): void {
     const currentAwareness = this.awareness.getLocalState() as AwarenessInfo
     if (!currentAwareness.active) {
       return
@@ -125,10 +109,10 @@ export class FileOnYjs {
       active: true,
       workingOn: {
         ...currentAwareness.workingOn,
-        cursor: {
-          index,
-          length
-        }
+        filePath,
+        key,
+        language,
+        cursor: range
       }
     } satisfies AwarenessInfo)
   }

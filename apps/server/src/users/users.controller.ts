@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards, Put } from '@nestjs/common'
-import { UserCreateRequest, UserPasswordUpdateRequest, UserBaseResponse, UserUpdateRequest, GroupBaseResponse, ProjectBaseResponse, RecentProjectPutRequest } from '@omnilate/schema'
+import { UserCreateRequest, UserPasswordUpdateRequest, UserBaseResponse, UserUpdateRequest, GroupBaseResponse, ProjectBaseResponse, RecentProjectPutRequest, LanguageSkillResponse } from '@omnilate/schema'
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger'
 
 import * as userUtils from '@/utils/users'
@@ -57,25 +57,23 @@ export class UsersController {
     return groups.map((group) => groupUtils.toBaseResponse(group))
   }
 
-  @Patch(':id')
-  async update (@Param('id') id: string, @Body() request: UserUpdateRequest): Promise<UserBaseResponse> {
-    const entity = await this.usersService.update(+id, request)
+  @Patch('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async update (@CurrentUserId() id: number, @Body() request: UserUpdateRequest): Promise<UserBaseResponse> {
+    const entity = await this.usersService.update(id, request)
     return userUtils.toBaseResponse(entity)
   }
 
-  @Patch(':id/password')
+  @Patch('me/password')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiBody({ type: UserPasswordUpdateRequest })
-  async updatePassword (@Param('id') id: string, @Body() request: { oldPassword: string, newPassword: string }): Promise<void> {
-    await this.usersService.updatePassword(+id, request.oldPassword, request.newPassword)
+  async updatePassword (@CurrentUserId() id: number, @Body() request: { oldPassword: string, newPassword: string }): Promise<void> {
+    await this.usersService.updatePassword(id, request.oldPassword, request.newPassword)
   }
 
-  @Delete(':id')
-  @HttpCode(204)
-  async remove (@Param('id') id: string): Promise<void> {
-    await this.usersService.remove(+id)
-  }
-
-  // region recent-proj
+  // #region recent-proj
   @Get('me/recent-projects')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -93,5 +91,34 @@ export class UsersController {
   ): Promise<void> {
     await this.usersService.upsertRecentProject(uid, payload.projectId)
   }
-  // endregion
+  // #endregion
+
+  // #region lang-skill
+  @Get(':id/language-skills')
+  async getKnownLanguages (@Param('id') id: string): Promise<LanguageSkillResponse[]> {
+    const data = await this.usersService.findKnownLanguages(+id)
+    return data.map(userUtils.langSkillToResponse)
+  }
+
+  @Put('me/language-skills')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async updateKnownLanguages (
+    @CurrentUserId() uid: number,
+    @Body() payload: LanguageSkillResponse
+  ): Promise<void> {
+    await this.usersService.upsertKnownlanguage(uid, payload.language, payload.mastery, payload.description)
+  }
+
+  @Delete('me/language-skills/:lang')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(204)
+  async deleteKnownLanguage (
+    @CurrentUserId() uid: number,
+    @Param('lang') lang: string
+  ): Promise<void> {
+    await this.usersService.deleteKnownLanguage(uid, lang)
+  }
+  // #endregion
 }

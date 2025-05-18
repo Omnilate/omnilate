@@ -71,7 +71,7 @@ export const supportedLanguages = [
     },
     icon: '🇰🇷'
   }
-] as const
+]
 
 export interface LanguageOption {
   code: string
@@ -83,7 +83,6 @@ export interface LanguageOption {
 export const supportedLanguageMap = supportedLanguages.reduce<Record<SupportedLanguageCode, typeof supportedLanguages[number]>>((acc, lang) => {
   acc[lang.code] = lang
   return acc
-// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-}, {} as Record<SupportedLanguageCode, typeof supportedLanguages[number]>)
+}, {})
 
 export type SupportedLanguageCode = typeof supportedLanguages[number]['code']

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 
 import { Injectable } from '@nestjs/common'
 import type { UserCreateRequest, UserUpdateRequest } from '@omnilate/schema'
-import { Project, User, UserKnownLanguage } from '@prisma/client'
+import { Group, Project, User, UserKnownLanguage } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { hash, compare } from 'bcrypt'
 
@@ -123,6 +123,7 @@ export class UsersService {
       data: {
         name: update.name,
         email: update.email,
+        description: update.description,
         avatarUrl: update.avatarUrl
       }
     })
@@ -184,6 +185,17 @@ export class UsersService {
       update: {
         mastery,
         description: description ?? ''
+      }
+    })
+  }
+
+  async findKnownLanguages (uid: number): Promise<UserKnownLanguage[]> {
+    return await this.prisma.userKnownLanguage.findMany({
+      where: {
+        userId: uid
+      },
+      orderBy: {
+        mastery: 'desc'
       }
     })
   }

@@ -1,5 +1,5 @@
-import type { UserBaseResponse, UserGroupResponse } from '@omnilate/schema'
-import type { GroupMembers, User } from '@prisma/client'
+import type { LanguageSkillResponse, UserBaseResponse, UserGroupResponse } from '@omnilate/schema'
+import type { GroupMembers, User, UserKnownLanguage } from '@prisma/client'
 
 export function toBaseResponse (user: User): UserBaseResponse {
   return {
@@ -27,5 +27,14 @@ export function toGroupResponse (user: UserWithGroups): UserGroupResponse {
 
     createdAt: user.createdAt.toUTCString(),
     updatedAt: user.updatedAt.toUTCString()
+  }
+}
+
+export function langSkillToResponse (langSkill: UserKnownLanguage): LanguageSkillResponse {
+  return {
+    language: langSkill.language,
+    mastery: langSkill.mastery,
+    description: langSkill.description,
+    updatedAt: langSkill.updatedAt.toUTCString()
   }
 }

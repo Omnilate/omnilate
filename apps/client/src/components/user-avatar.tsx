@@ -31,7 +31,7 @@ const UserAvatar: Component<UserAvatarProps> = (props) => {
   const bgColor = (): string => getUserColor(user()?.id ?? 0)
 
   return (
-    <A {...props} class={cn('size-10 relative inline-block', props.class)} href={`/user/${user()?.id ?? 0}`}>
+    <A {...props} class={cn('size-10 relative inline-block', props.class)} href={`/users/${user()?.id ?? 0}`}>
       <ImageRoot class="size-full">
         <Image alt={user()?.name ?? 'User Avatar'} class="size-full" src={user()?.avatarUrl} />
         <ImageFallback

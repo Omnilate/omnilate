@@ -1,4 +1,4 @@
-import type { RecentProjectPutRequest, UserBaseResponse, UserCreateRequest, UserGroupResponse } from '@omnilate/schema'
+import type { RecentProjectPutRequest, UserBaseResponse, UserCreateRequest, UserGroupResponse, UserUpdateRequest } from '@omnilate/schema'
 import { query } from '@solidjs/router'
 
 import { convertDatetime } from '@/utils/convert-datetime'
@@ -46,6 +46,21 @@ export async function getMe (): Promise<UserBaseResource> {
 
   if (!response.ok) {
     throw new Error('Failed to get user')
+  }
+
+  const user = await response.json<UserBaseResponse>()
+  return convertDatetime(user, ['createdAt', 'updatedAt'])
+}
+
+export async function patchMe (payload: UserUpdateRequest): Promise<UserBaseResource> {
+  const httpRequest = makeHttpRequest()
+
+  const response = await httpRequest.patch('users/me', {
+    json: payload
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to update user')
   }
 
   const user = await response.json<UserBaseResponse>()

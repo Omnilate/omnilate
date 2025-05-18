@@ -16,12 +16,13 @@ const LanguageSelect: Component<LanguageSelectProps> = (props) => {
   const selectedLanguage = (): LanguageOption => {
     return supportedLanguages.find((lang) => lang.code === props.value)!
   }
+
   const shownLanguages = createMemo(() => {
     if (props.languages == null) {
       return supportedLanguages
     }
 
-    return supportedLanguages.filter((lang) => props.languages!.includes(lang.code))
+    return supportedLanguages.filter((lang) => (props.languages).includes(lang.code))
   })
 
   const handleSelectValueChange = (value: LanguageOption | null): void => {
@@ -30,16 +31,13 @@ const LanguageSelect: Component<LanguageSelectProps> = (props) => {
       return
     }
 
-    if (value.code === props.value) {
-      return
-    }
-
-    props.onChange(value.code as SupportedLanguageCode)
+    props.onChange(value.code)
   }
 
   return (
     <Select<LanguageOption>
       multiple={false}
+      optionValue="code"
       options={shownLanguages()}
       value={selectedLanguage()}
       itemComponent={(props) => (

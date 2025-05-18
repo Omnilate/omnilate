@@ -32,6 +32,9 @@ export abstract class UserUpdateRequest {
 
   @ApiProperty()
   avatarUrl?: string
+
+  @ApiProperty()
+  description?: string
 }
 
 export abstract class UserKnownLanguage {
@@ -86,4 +89,29 @@ export abstract class UserGroupResponse extends UserBaseResponse {
 
   @ApiProperty()
   joinedAt!: string
+}
+
+export abstract class LanguageSkillCreateRequest {
+  @ApiProperty()
+  language!: string
+
+  @ApiProperty({ description: '0-1' })
+  mastery!: number
+
+  @ApiProperty()
+  description?: string
+}
+
+export abstract class LanguageSkillResponse {
+  @ApiProperty()
+  language!: string
+
+  @ApiProperty({ description: '0-1' })
+  mastery!: number
+
+  @ApiProperty()
+  description?: string
+
+  @ApiProperty()
+  updatedAt!: string
 }

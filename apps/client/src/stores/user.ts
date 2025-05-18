@@ -21,11 +21,24 @@ const [userModel, setUserModel] = makePersisted(
 interface UserModelReturnType {
   userModel: UserBaseResource
   setUserModel: SetStoreFunction<UserBaseResource>
+  resetUserModel: () => void
 }
 
 export const useUserModel = (): UserModelReturnType => {
+  const resetUserModel = (): void => {
+    setUserModel({
+      id: 0,
+      avatarUrl: '',
+      name: '',
+      description: '',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    })
+  }
+
   return {
     userModel,
-    setUserModel
+    setUserModel,
+    resetUserModel
   }
 }

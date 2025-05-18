@@ -78,8 +78,12 @@
     "TITLE": "Create Group"
   },
   "FREETIER_USER": "Free Tier",
+  "GLOBAL_TOASTERS": {
+    "NOT_LOGGED_IN": "Please login"
+  },
   "ME": {
-    "DESC_PLACEHOLDER": "No description"
+    "DESC_PLACEHOLDER": "No description",
+    "LOGOUT": "Logout"
   },
   "RECENTPROJ": {
     "EMPTY": "No recently visited projects yet",

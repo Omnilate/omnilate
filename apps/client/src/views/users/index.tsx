@@ -1,16 +1,15 @@
-import { reload } from '@solidjs/router'
 import type { RouteSectionProps } from '@solidjs/router'
-import { createResource, createSignal, Show } from 'solid-js'
+import { useNavigate } from '@solidjs/router'
 import type { Component } from 'solid-js'
+import { createResource, createSignal, Show } from 'solid-js'
 
 import { getMe, getUser } from '@/apis/user'
-import { Image, ImageFallback, ImageRoot } from '@/components/ui/image'
-import { getContrastTextColor } from '@/utils/contrast-text-color'
-import { getUserColor } from '@/utils/user-color'
-import { jumpTo } from '@/utils/jump-to'
 import { EditIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
+import { Image, ImageFallback, ImageRoot } from '@/components/ui/image'
 import { useUserModel } from '@/stores/user'
+import { getContrastTextColor } from '@/utils/contrast-text-color'
+import { getUserColor } from '@/utils/user-color'
 
 import EditDescriptionDialog from './components/edit-description-dialog'
 import EditNameDialog from './components/edit-name-dialog'
@@ -22,13 +21,14 @@ interface UsersViewProps extends RouteSectionProps {}
 const UsersView: Component<UsersViewProps> = (props) => {
   const [descEditShown, setDescEditShown] = createSignal(false)
   const [nameEditShown, setNameEditShown] = createSignal(false)
+  const navigate = useNavigate()
 
   const userId = (): 'me' | number => {
     const id = props.params.id
     if (id === 'me') {
       return 'me'
     } else if (Number.isNaN(Number(id))) {
-      jumpTo('/')
+      navigate('/')
       return 0
     } else {
       return Number(id)
@@ -50,7 +50,7 @@ const UsersView: Component<UsersViewProps> = (props) => {
           return await getUser(id as number)
         }
       } catch {
-        jumpTo('/')
+        navigate('/')
       }
     }
   )
@@ -104,7 +104,7 @@ const UsersView: Component<UsersViewProps> = (props) => {
             </div>
             <div class="text-sm text-slate">
               {
-                userBase()?.description
+                (userBase()?.description == null || userBase()?.description === '')
                   ? userBase()?.description
                   : 'No description'
               }

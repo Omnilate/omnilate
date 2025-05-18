@@ -1,6 +1,7 @@
 import type { Component } from 'solid-js'
 import { createSignal } from 'solid-js'
 import { toast } from 'solid-sonner'
+import { useNavigate } from '@solidjs/router'
 
 import { getAccessToken } from '@/apis/auth'
 import { Button } from '@/components/ui/button'
@@ -8,7 +9,6 @@ import { TextField, TextFieldLabel, TextFieldRoot } from '@/components/ui/textfi
 import { useAuthModel } from '@/stores/auth'
 import { useI18n } from '@/utils/i18n'
 import { iv } from '@/utils/input-value'
-import { jumpTo } from '@/utils/jump-to'
 
 const SigninCard: Component = () => {
   const [username, setUsername] = createSignal('')
@@ -16,6 +16,7 @@ const SigninCard: Component = () => {
   const { setAuthModel } = useAuthModel()
   const t = useI18n()
   const signInT = t.AUTHDIALOG.SIGNIN
+  const navigate = useNavigate()
 
   const handleSignin = async (e: Event): Promise<void> => {
     e.preventDefault()
@@ -38,7 +39,7 @@ const SigninCard: Component = () => {
 
       setUsername('')
       setPassword('')
-      jumpTo('/')
+      navigate('/')
     } catch {
       toast.error(t.AUTHDIALOG.SIGNIN.ERRORS.UNKNOWN())
     }

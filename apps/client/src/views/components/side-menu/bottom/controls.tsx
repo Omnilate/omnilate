@@ -1,12 +1,15 @@
 import { A } from '@solidjs/router'
+import { Show } from 'solid-js'
 import type { Component } from 'solid-js'
+import { useColorMode } from '@kobalte/core'
 
-import { BellIcon, CogIcon, HomeIcon, LanguageIcon } from '@/assets/icons'
+import { BellIcon, CogIcon, HomeIcon, LanguageIcon, MoonIcon, SunIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { setLocale } from '@/utils/i18n'
 
 const Controls: Component = () => {
+  const { colorMode, toggleColorMode } = useColorMode()
   const handleSetZHCN = (): void => {
     setLocale('zh-CN')
   }
@@ -25,8 +28,12 @@ const Controls: Component = () => {
       <Icon class="color-gray! hover:color-primary! transition-color">
         <BellIcon />
       </Icon>
-      <Icon class="color-gray! hover:color-primary! transition-color">
-        <CogIcon />
+      <Icon class="color-gray! hover:color-primary! transition-color"
+        onClick={toggleColorMode}
+      >
+        <Show fallback={<MoonIcon />} when={colorMode() === 'light'}>
+          <SunIcon />
+        </Show>
       </Icon>
       <Popover placement="top">
         <PopoverTrigger class="size-4 bg-transparent">

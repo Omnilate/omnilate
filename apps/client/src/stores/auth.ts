@@ -14,15 +14,23 @@ interface UseAuthModelReturnType {
   authModel: AuthModel
   setAuthModel: SetStoreFunction<AuthModel>
   authenticated: Accessor<boolean>
+  clearAuthModel: () => void
 }
 
 export function useAuthModel (): UseAuthModelReturnType {
   const authenticated = (): boolean => !(authModel.accessToken.length === 0)
 
+  const clearAuthModel = (): void => {
+    setAuthModel({
+      accessToken: ''
+    })
+  }
+
   return {
     authModel,
     setAuthModel,
-    authenticated
+    authenticated,
+    clearAuthModel
   }
 }
 

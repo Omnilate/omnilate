@@ -78,8 +78,12 @@
     "TITLE": "创建团队"
   },
   "FREETIER_USER": "普通用户",
+  "GLOBAL_TOASTERS": {
+    "NOT_LOGGED_IN": "请登录"
+  },
   "ME": {
-    "DESC_PLACEHOLDER": "暂无简介"
+    "DESC_PLACEHOLDER": "暂无简介",
+    "LOGOUT": "登出"
   },
   "RECENTPROJ": {
     "EMPTY": "暂无内容",

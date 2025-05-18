@@ -1,22 +1,21 @@
-import { ColorModeScript, ColorModeProvider, useColorMode } from '@kobalte/core'
-import type { RouteSectionProps } from '@solidjs/router'
-import { createEffect } from 'solid-js'
-import type { Component } from 'solid-js'
+import { useColorMode } from '@kobalte/core'
 import type { PopoverTriggerProps } from '@kobalte/core/popover'
-import { Toaster } from 'solid-sonner'
+import type { RouteSectionProps } from '@solidjs/router'
+import { useNavigate } from '@solidjs/router'
+import type { Component } from 'solid-js'
+import { createEffect } from 'solid-js'
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { setLocale, useI18n } from '@/utils/i18n'
-import { Button } from '@/components/ui/button'
-import Icon from '@/components/icon'
 import { LanguageIcon, MoonIcon } from '@/assets/icons'
-import { ToggleButton } from '@/components/ui/toggle'
+import Icon from '@/components/icon'
+import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ToggleButton } from '@/components/ui/toggle'
 import { useAuthModel } from '@/stores/auth'
-import { jumpTo } from '@/utils/jump-to'
+import { setLocale, useI18n } from '@/utils/i18n'
 
-import SignupCard from './components/signup-card'
 import SigninCard from './components/signin-card'
+import SignupCard from './components/signup-card'
 
 interface SignViewProps extends RouteSectionProps {}
 
@@ -24,6 +23,8 @@ const SignView: Component<SignViewProps> = () => {
   const t = useI18n()
   const { colorMode, setColorMode } = useColorMode()
   const { authenticated } = useAuthModel()
+  const navigate = useNavigate()
+
   const handleSetZHCN = (): void => {
     setLocale('zh-CN')
   }
@@ -34,13 +35,12 @@ const SignView: Component<SignViewProps> = () => {
 
   createEffect(() => {
     if (authenticated()) {
-      jumpTo('/')
+      navigate('/')
     }
   })
 
   return (
     <div class="size-full flex">
-      <Toaster />
       <div class="flex-1 b-r-(1px solid border) flex items-center justify-center">
         <div>
           <div class="text-8xl font-900">

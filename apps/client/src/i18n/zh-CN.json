@@ -17,6 +17,11 @@
     "EULA_HINT": "执行此操作表示您已阅读并接受我们的EULA",
     "SIGNIN": {
       "BUTTON": "登录",
+      "ERRORS": {
+        "INVALID_EMAIL": "邮箱无效",
+        "INVALID_PASSWORD": "密码无效",
+        "UNKNOWN": "邮箱或密码错误，请检查您的输入"
+      },
       "PASSWORD": {
         "TITLE": "密码"
       },
@@ -31,6 +36,13 @@
         "DESC": "用于登录的邮箱地址",
         "TITLE": "邮箱"
       },
+      "ERRORS": {
+        "INVALID_EMAIL": "邮箱地址无效",
+        "INVALID_NAME": "用户名无效",
+        "INVALID_PASSWORD": "密码无效",
+        "PWD_NOT_MATCH": "两次输入的密码不匹配",
+        "UNKNOWN": "注册失败，请检查您提供的信息"
+      },
       "PASSWORD": {
         "DESC": "至少8字符，必须包含数字及大小写字母",
         "TITLE": "密码"
@@ -38,6 +50,7 @@
       "PASSWORD_REPEAT": {
         "TITLE": "重复密码"
       },
+      "SUCCESS": "您已完成注册，现在可以登录了",
       "USERNAME": {
         "DESC": "向其他人展示的账户名称，可在注册后更改",
         "PLACEHOLDER": "账户名称",

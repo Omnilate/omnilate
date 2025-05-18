@@ -1,17 +1,12 @@
-import type { Component } from 'solid-js'
 import { A } from '@solidjs/router'
+import type { Component } from 'solid-js'
 
 import { BellIcon, CogIcon, HomeIcon, LanguageIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
-import { PopoverTrigger, PopoverContent, Popover } from '@/components/ui/popover'
-import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { setLocale } from '@/utils/i18n'
 
-interface ControlsProps {
-  // foo: string
-}
-
-const Controls: Component<ControlsProps> = (props) => {
+const Controls: Component = () => {
   const handleSetZHCN = (): void => {
     setLocale('zh-CN')
   }
@@ -40,8 +35,20 @@ const Controls: Component<ControlsProps> = (props) => {
           </Icon>
         </PopoverTrigger>
         <PopoverContent>
-          <Button onClick={handleSetZHCN}>简体中文</Button>
-          <Button onClick={handleSetEN}>English</Button>
+          <div class="flex items-center gap-2 p-2 cursor-pointer bg-background hover:bg-accent rounded-xl mt-5" onClick={handleSetZHCN}>
+            <div>🇨🇳</div>
+            <div>
+              <div class="font-500">简体中文</div>
+              <div class="text-xs">Chinese(simplified)</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 p-2 cursor-pointer bg-background hover:bg-accent rounded-xl" onClick={handleSetEN}>
+            <div>🇺🇸</div>
+            <div>
+              <div class="font-500">English</div>
+              <div class="text-xs">English</div>
+            </div>
+          </div>
         </PopoverContent>
       </Popover>
     </div>

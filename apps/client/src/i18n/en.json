@@ -17,6 +17,11 @@
     "EULA_HINT": "By performing this operation, you have read and accept our EULA",
     "SIGNIN": {
       "BUTTON": "Sign in",
+      "ERRORS": {
+        "INVALID_EMAIL": "Invalid Email",
+        "INVALID_PASSWORD": "Invalid password",
+        "UNKNOWN": "Wrong email address or password, please check your inputs"
+      },
       "PASSWORD": {
         "TITLE": "Password"
       },
@@ -31,6 +36,13 @@
         "DESC": "Email address for signing in",
         "TITLE": "Email"
       },
+      "ERRORS": {
+        "INVALID_EMAIL": "Email address is invalid",
+        "INVALID_NAME": "Invalid user name",
+        "INVALID_PASSWORD": "Password invalid",
+        "PWD_NOT_MATCH": "Password not match",
+        "UNKNOWN": "Failed to sign up, please check the information you provided"
+      },
       "PASSWORD": {
         "DESC": "At least 8 characters, must contain number, upper and lower case alphabets",
         "TITLE": "Password"
@@ -38,6 +50,7 @@
       "PASSWORD_REPEAT": {
         "TITLE": "Repeat Password"
       },
+      "SUCCESS": "You've signed up, now you can log into Omnilate",
       "USERNAME": {
         "DESC": "The displayed name of the account, can be modified later",
         "PLACEHOLDER": "The name of the account",

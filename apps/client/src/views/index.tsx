@@ -27,23 +27,18 @@ const RootView: Component<RootProps> = (props) => {
   })
 
   return (
-    <>
-      <ColorModeScript />
-      <ColorModeProvider>
-        <Resizable class="size-full rounded-lg border hide-scrollbar" orientation="horizontal">
-          <ResizablePanel initialSize="300px" minSize="300px">
-            <SideMenu />
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel class="flex flex-1 bg-accent">
-            <ToastRegion>
-              <ToastList />
-            </ToastRegion>
-            {props.children}
-          </ResizablePanel>
-        </Resizable>
-      </ColorModeProvider>
-    </>
+    <Resizable class="size-full rounded-lg border hide-scrollbar" orientation="horizontal">
+      <ResizablePanel initialSize="300px" minSize="300px">
+        <SideMenu />
+      </ResizablePanel>
+      <ResizableHandle />
+      <ResizablePanel class="flex flex-1 bg-accent">
+        <ToastRegion>
+          <ToastList />
+        </ToastRegion>
+        {props.children}
+      </ResizablePanel>
+    </Resizable>
   )
 }
 

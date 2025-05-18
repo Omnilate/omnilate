@@ -8,7 +8,7 @@ type GroupItemProps = GroupBaseResource
 
 const GroupItem: Component<GroupItemProps> = (props) => {
   return (
-    <A class="flex items-center gap-2 py-1 px-2 b-rounded-xl hover:bg-gray-200 transition-[background-color] cursor-pointer" href={`/groups/${props.id}`}>
+    <A class="flex items-center gap-2 py-1 px-2 b-rounded-xl hover:bg-accent transition-[background-color] cursor-pointer" href={`/groups/${props.id}`}>
       <GroupLogo class="size-8" group={props} />
       <div>
         <div>{props.name}</div>

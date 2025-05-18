@@ -40,7 +40,7 @@ const ProjectsView: Component<ProjectsProps> = (props) => {
       <div class="h-14 w-full b-b-(1px solid border) px-4 flex justify-between items-center bg-background shadow-sm shrink-0">
         <div class="flex items-center gap-2">
           <span class="text-xl font-500">{projectMeta()?.name}</span>
-          <Icon class="color-gray cursor-pointer hover:(color-black) transition-color">
+          <Icon class="color-gray cursor-pointer hover:(c-black dark:c-white) transition-color">
             <CogIcon />
           </Icon>
         </div>

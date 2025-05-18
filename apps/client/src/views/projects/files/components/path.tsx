@@ -40,7 +40,7 @@ const Path: Component<PathProps> = (props) => {
           return (
             <>
               <A
-                class="p-(x-2 y-1) rounded-full bg-background shadow text-sm text-gray-500 hover:text-gray-700 transition-color"
+                class="p-(x-2 y-1) rounded-full bg-background shadow text-sm text-gray-500 hover:(text-gray-700 dark:text-gray-300) transition-color"
                 href={`${props.baseLocation}/${node.path}`}
               >
                 {node.name}

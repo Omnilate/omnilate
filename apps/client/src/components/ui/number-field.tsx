@@ -19,9 +19,9 @@ import { textfieldLabel } from './textfield'
 export const NumberFieldHiddenInput = NumberFieldPrimitive.HiddenInput
 
 type numberFieldLabelProps<T extends ValidComponent = 'div'> =
-	NumberFieldLabelProps<T> & {
-	  class?: string;
-	}
+  NumberFieldLabelProps<T> & {
+    class?: string;
+  }
 
 export const NumberFieldLabel = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, numberFieldLabelProps<T>>
@@ -37,9 +37,9 @@ export const NumberFieldLabel = <T extends ValidComponent = 'div'>(
 }
 
 type numberFieldDescriptionProps<T extends ValidComponent = 'div'> =
-	NumberFieldDescriptionProps<T> & {
-	  class?: string;
-	}
+  NumberFieldDescriptionProps<T> & {
+    class?: string;
+  }
 
 export const NumberFieldDescription = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, numberFieldDescriptionProps<T>>
@@ -60,9 +60,9 @@ export const NumberFieldDescription = <T extends ValidComponent = 'div'>(
 }
 
 type numberFieldErrorMessageProps<T extends ValidComponent = 'div'> =
-	NumberFieldErrorMessageProps<T> & {
-	  class?: string;
-	}
+  NumberFieldErrorMessageProps<T> & {
+    class?: string;
+  }
 
 export const NumberFieldErrorMessage = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, numberFieldErrorMessageProps<T>>
@@ -80,9 +80,9 @@ export const NumberFieldErrorMessage = <T extends ValidComponent = 'div'>(
 }
 
 type numberFieldProps<T extends ValidComponent = 'div'> =
-	NumberFieldRootProps<T> & {
-	  class?: string;
-	}
+  NumberFieldRootProps<T> & {
+    class?: string;
+  }
 
 export const NumberField = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, numberFieldProps<T>>
@@ -109,9 +109,9 @@ export const NumberFieldGroup = (props: ComponentProps<'div'>) => {
 }
 
 type numberFieldInputProps<T extends ValidComponent = 'input'> =
-	NumberFieldInputProps<T> & {
-	  class?: string;
-	}
+  NumberFieldInputProps<T> & {
+    class?: string;
+  }
 
 export const NumberFieldInput = <T extends ValidComponent = 'input'>(
   props: PolymorphicProps<T, VoidProps<numberFieldInputProps<T>>>
@@ -121,7 +121,7 @@ export const NumberFieldInput = <T extends ValidComponent = 'input'>(
   return (
     <NumberFieldPrimitive.Input
       class={cn(
-        'flex h-9 w-full rounded-md border border-input bg-transparent px-10 py-1 text-sm text-center shadow-sm placeholder:text-muted-foreground disabled:(cursor-not-allowed opacity-50) focus-visible:outline-none',
+        'flex h-9 w-full rounded-md border border-input b-solid bg-transparent px-10 py-1 text-sm text-center shadow-sm placeholder:text-muted-foreground disabled:(cursor-not-allowed opacity-50) focus-visible:outline-none',
         local.class
       )}
       {...rest}
@@ -130,11 +130,11 @@ export const NumberFieldInput = <T extends ValidComponent = 'input'>(
 }
 
 type numberFieldDecrementTriggerProps<T extends ValidComponent = 'button'> =
-	VoidProps<
-		NumberFieldDecrementTriggerProps<T> & {
-		  class?: string;
-		}
-	>
+  VoidProps<
+    NumberFieldDecrementTriggerProps<T> & {
+      class?: string;
+    }
+  >
 
 export const NumberFieldDecrementTrigger = <
   T extends ValidComponent = 'button'
@@ -173,11 +173,11 @@ export const NumberFieldDecrementTrigger = <
 }
 
 type numberFieldIncrementTriggerProps<T extends ValidComponent = 'button'> =
-	VoidProps<
-		NumberFieldIncrementTriggerProps<T> & {
-		  class?: string;
-		}
-	>
+  VoidProps<
+    NumberFieldIncrementTriggerProps<T> & {
+      class?: string;
+    }
+  >
 
 export const NumberFieldIncrementTrigger = <
   T extends ValidComponent = 'button'

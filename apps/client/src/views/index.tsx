@@ -1,5 +1,6 @@
 import type { Component, JSX } from 'solid-js'
 import { createEffect } from 'solid-js'
+import { ColorModeProvider, ColorModeScript } from '@kobalte/core'
 
 import { getMe } from '@/apis/user'
 import { Resizable, ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
@@ -26,18 +27,23 @@ const RootView: Component<RootProps> = (props) => {
   })
 
   return (
-    <Resizable class="size-full rounded-lg border hide-scrollbar" orientation="horizontal">
-      <ResizablePanel initialSize="300px" minSize="300px">
-        <SideMenu />
-      </ResizablePanel>
-      <ResizableHandle />
-      <ResizablePanel class="flex flex-1 bg-accent">
-        <ToastRegion>
-          <ToastList />
-        </ToastRegion>
-        {props.children}
-      </ResizablePanel>
-    </Resizable>
+    <>
+      <ColorModeScript />
+      <ColorModeProvider>
+        <Resizable class="size-full rounded-lg border hide-scrollbar" orientation="horizontal">
+          <ResizablePanel initialSize="300px" minSize="300px">
+            <SideMenu />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel class="flex flex-1 bg-accent">
+            <ToastRegion>
+              <ToastList />
+            </ToastRegion>
+            {props.children}
+          </ResizablePanel>
+        </Resizable>
+      </ColorModeProvider>
+    </>
   )
 }
 

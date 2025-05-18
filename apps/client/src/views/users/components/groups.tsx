@@ -32,7 +32,10 @@ const Groups: Component<GroupsProps> = (props) => {
         >
           <For each={groups()}>
             {(group) => (
-              <A class="flex gap-4 items-center rounded-xl shadow-md p-4 hover:(shadow-lg) transition-shadow" href={`/groups/${group.id}`}>
+              <A
+                class="flex gap-4 items-center rounded-xl shadow-md bg-background p-4 hover:(shadow-lg bg-accent) transition-shadow transition-colors"
+                href={`/groups/${group.id}`}
+              >
                 <GroupLogo group={group} />
                 <Separator orientation="vertical" />
                 <div class="flex flex-col gap-1">

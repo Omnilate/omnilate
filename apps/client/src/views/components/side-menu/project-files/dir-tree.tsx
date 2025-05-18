@@ -37,7 +37,7 @@ const DirTree: Component<DirTreeProps> = (props) => {
         props.node.type === 'file'
           ? (
               <A
-                class="flex gap-1 items-center ml-2 pl-[--pl] mr-2 h-6 rounded-xl hover:bg-slate-100"
+                class="flex gap-1 items-center ml-2 pl-[--pl] mr-2 h-6 rounded-xl hover:bg-accent"
                 href={`/groups/${projectMeta()?.groupId}/projects/${projectMeta()?.id}/files${props.path.join('/')}/${props.name}`}
                 style={{ '--pl': paddingLeft() }}
                 onClick={handleClick}
@@ -79,7 +79,7 @@ const DirTree: Component<DirTreeProps> = (props) => {
             : (
                 <AccordionItem class="b-b-0" value={props.name ?? ''}>
                   <AccordionTrigger
-                    class="h-6 py-0 ml-2 pl-[--pl] pr-4 mr-2 h-6 rounded-xl hover:(bg-slate-100 decoration-none)"
+                    class="h-6 py-0 ml-2 pl-[--pl] pr-4 mr-2 h-6 rounded-xl hover:(bg-accent decoration-none)"
                     style={{ '--pl': paddingLeft() }}
                     onClick={handleClick}
                   >

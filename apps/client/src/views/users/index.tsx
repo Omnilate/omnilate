@@ -95,7 +95,7 @@ const UsersView: Component<UsersViewProps> = (props) => {
             <div class="text-3xl font-900">
               {userBase()?.name}
               <Show when={isMe()}>
-                <Icon class="inline-block size-3! ml-1 c-slate hover:(c-slate-500) transition-color cursor-pointer"
+                <Icon class="inline-block size-3! ml-1 c-slate hover:(c-slate-500 dark:c-slate-300) transition-color cursor-pointer"
                   onClick={() => setNameEditShown(true)}
                 >
                   <EditIcon />
@@ -109,7 +109,7 @@ const UsersView: Component<UsersViewProps> = (props) => {
                   : 'No description'
               }
               <Show when={isMe()}>
-                <Icon class="inline-block ml-1 size-3 hover:(c-slate-500) transition-color cursor-pointer"
+                <Icon class="inline-block ml-1 size-3 hover:(c-slate-500 dark:c-slate-300) transition-color cursor-pointer"
                   onClick={() => setDescEditShown(true)}
                 >
                   <EditIcon />

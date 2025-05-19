@@ -8,6 +8,8 @@ import Icon from '@/components/icon'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { setLocale } from '@/utils/i18n'
 
+import Notification from '../notification'
+
 const Controls: Component = () => {
   const { colorMode, toggleColorMode } = useColorMode()
   const handleSetZHCN = (): void => {
@@ -25,9 +27,7 @@ const Controls: Component = () => {
           <HomeIcon />
         </Icon>
       </A>
-      <Icon class="color-gray! hover:color-primary! transition-color">
-        <BellIcon />
-      </Icon>
+      <Notification />
       <Icon class="color-gray! hover:color-primary! transition-color"
         onClick={toggleColorMode}
       >

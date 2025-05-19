@@ -276,6 +276,19 @@ export class GroupsService {
     })
   }
 
+  async getInvitedUsers (gid: number): Promise<User[]> {
+    const invitations = await this.prisma.groupInvitation.findMany({
+      where: {
+        groupId: gid
+      },
+      include: {
+        invitee: true
+      }
+    })
+
+    return invitations.map((i) => i.invitee)
+  }
+
   async createInvitation (gid: number, inviterId: number, inviteeId: number): Promise<GroupInvitation> {
     return await this.prisma.groupInvitation.create({
       data: {

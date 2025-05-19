@@ -1,33 +1,31 @@
 import type { RouteSectionProps } from '@solidjs/router'
+import { createAsync } from '@solidjs/router'
 import type { Component } from 'solid-js'
-import { createResource, For, Suspense } from 'solid-js'
+import { For, Suspense } from 'solid-js'
 
 import { getGroup, getGroupMembers } from '@/apis/groups'
 import { getProjects } from '@/apis/project'
 import GroupLogo from '@/components/group-logo'
 import { Card, CardContent } from '@/components/ui/card'
-import Icon from '@/components/icon'
-import { CogIcon, PlusIcon } from '@/assets/icons'
-import { Button } from '@/components/ui/button'
 
-import ProjectItem from './components/project-item'
 import GroupMemberAvatar from './components/group-member-avatar'
+import InviteDialog from './components/invite-dialog'
+import MemberConfDialog from './components/member-conf-dialog'
+import ProjectItem from './components/project-item'
 
 interface GroupsProps extends RouteSectionProps {}
 
 const GroupsView: Component<GroupsProps> = (props) => {
   const gid = (): number => parseInt(props.params.id)
-  const [group] = createResource(gid, async (id) => {
-    return await getGroup(id)
-  })
-
-  const [projects] = createResource(gid, async (id) => {
-    return await getProjects(id)
-  })
-
-  const [members] = createResource(gid, async (id) => {
-    return await getGroupMembers(id)
-  })
+  const group = createAsync(async () => { return await getGroup(gid()) })
+  const projects = createAsync(
+    async () => await getProjects(gid()),
+    { initialValue: [] }
+  )
+  const members = createAsync(
+    async () => await getGroupMembers(gid()),
+    { initialValue: [] }
+  )
 
   return (
     <Suspense fallback="loading">
@@ -44,10 +42,8 @@ const GroupsView: Component<GroupsProps> = (props) => {
                   Projects
                 </div>
                 <div class="flex flex-col gap-2">
-                  <For each={projects() ?? []}>
-                    {
-                      (project) => <ProjectItem {...project} />
-                    }
+                  <For each={projects()}>
+                    {(project) => <ProjectItem {...project} />}
                   </For>
                 </div>
               </CardContent>
@@ -56,17 +52,8 @@ const GroupsView: Component<GroupsProps> = (props) => {
               <CardContent class="flex-col gap-4">
                 <div class="flex items-center gap-4 font-500 text-xl py-4">
                   <span>Members</span>
-                  <Button class="flex items-center gap-2 text-xs px-2 h-6">
-                    <Icon>
-                      <PlusIcon />
-                    </Icon>
-                    <span>Invite</span>
-                  </Button>
-                  <Button class="text-xs p-0 size-6 rounded-full">
-                    <Icon>
-                      <CogIcon />
-                    </Icon>
-                  </Button>
+                  <InviteDialog gid={group()?.id ?? 0} members={members()} />
+                  <MemberConfDialog gid={group()?.id ?? 0} />
                 </div>
                 <div>
                   <For each={members() ?? []}>

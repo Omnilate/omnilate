@@ -81,9 +81,52 @@
   "GLOBAL_TOASTERS": {
     "NOT_LOGGED_IN": "请登录"
   },
+  "GROUPROLE": {
+    "ADMIN": "管理员",
+    "MEMBER": "普通成员",
+    "OBSERVER": "观察者",
+    "OWNER": "所有者"
+  },
   "ME": {
     "DESC_PLACEHOLDER": "暂无简介",
     "LOGOUT": "登出"
+  },
+  "NOTIFICATION": {
+    "ALTER_GROUP_ROLE": {
+      "DESC": "你在{{group}}的角色已变更为{{newRole}}",
+      "TITLE": "角色变更"
+    },
+    "GROUP_JOIN_INVITATION": {
+      "DESC": "{{inviter}}邀请你加入{{group}}",
+      "TITLE": "团队加入邀请"
+    },
+    "GROUP_JOIN_INVITATION_ACCEPTED": {
+      "DESC": "{{invitee}}接受了你的邀请，加入了{{group}}",
+      "TITLE": "邀请已被接受"
+    },
+    "GROUP_JOIN_INVITATION_REJECTED": {
+      "DESC": "{{invitee}}拒绝了你发出的加入{{group}}的邀请",
+      "TITLE": "邀请被拒绝"
+    },
+    "GROUP_JOIN_REQUEST": {
+      "DESC": "{{user}}请求加入{{group}}",
+      "TITLE": "团队加入请求"
+    },
+    "GROUP_JOIN_REQUEST_ACCEPTED": {
+      "DESC": "你加入{{group}}的请求已被通过",
+      "TITLE": "加入请求已通过"
+    },
+    "GROUP_JOIN_REQUEST_REJECTED": "你加入{{group}}的请求已被拒绝",
+    "GROUP_NEW_MEMBER_ANNOUNCEMENT": {
+      "DESC": "{{newMember}}加入了{{group}}",
+      "TITLE": "新团队成员"
+    },
+    "MISC": {
+      "ACTIONS": {
+        "ACCEPT": "接受",
+        "REJECT": "拒绝"
+      }
+    }
   },
   "RECENTPROJ": {
     "EMPTY": "暂无内容",

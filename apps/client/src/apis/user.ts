@@ -106,3 +106,24 @@ export const getRecentProjects = query(async (): Promise<ProjectBaseResource[]> 
   const projects = await response.json<ProjectBaseResource[]>()
   return projects.map((project) => convertDatetime(project, ['createdAt', 'updatedAt']))
 }, 'recent-projects')
+
+export const searchUsers = query(
+  async ({ keyword }:
+  { keyword: string }): Promise<UserBaseResource[]> => {
+    const httpRequest = makeHttpRequest()
+
+    const response = await httpRequest.get('users', {
+      searchParams: {
+        keyword
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to search users')
+    }
+
+    const users = await response.json<UserBaseResponse[]>()
+    return users.map((user) => convertDatetime(user, ['createdAt', 'updatedAt']))
+  },
+  'user-search'
+)

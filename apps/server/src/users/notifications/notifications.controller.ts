@@ -20,18 +20,21 @@ export class NotificationsController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   async findOne (@BigIntParam('id') id: bigint): Promise<NotificationResponse> {
     const notification = await this.notificationsService.findOne(id)
     return notificationUtils.toResponse(notification)
   }
 
   @Patch(':id/read')
+  @UseGuards(JwtAuthGuard)
   async markAsRead (@BigIntParam('id') id: bigint): Promise<NotificationResponse> {
     const notification = await this.notificationsService.markAsRead(id)
     return notificationUtils.toResponse(notification)
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove (@BigIntParam('id') id: bigint): Promise<void> {
     await this.notificationsService.remove(id)

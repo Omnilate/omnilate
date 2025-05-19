@@ -81,9 +81,52 @@
   "GLOBAL_TOASTERS": {
     "NOT_LOGGED_IN": "Please login"
   },
+  "GROUPROLE": {
+    "ADMIN": "Admin",
+    "MEMBER": "Member",
+    "OBSERVER": "Observer",
+    "OWNER": "Owner"
+  },
   "ME": {
     "DESC_PLACEHOLDER": "No description",
     "LOGOUT": "Logout"
+  },
+  "NOTIFICATION": {
+    "ALTER_GROUP_ROLE": {
+      "DESC": "Your role in {{group}} has been changed to {{newRole}}",
+      "TITLE": "Role Changed"
+    },
+    "GROUP_JOIN_INVITATION": {
+      "DESC": "{{inviter}} invites you to join {{group}}",
+      "TITLE": "New invitation"
+    },
+    "GROUP_JOIN_INVITATION_ACCEPTED": {
+      "DESC": "{{invitee}} has approved your invitation and become a member of {{group}}",
+      "TITLE": "Invitation Approved"
+    },
+    "GROUP_JOIN_INVITATION_REJECTED": {
+      "DESC": "{{invitee}} has refused your invitation to join {{group}}",
+      "TITLE": "Invitation Rejected"
+    },
+    "GROUP_JOIN_REQUEST": {
+      "DESC": "{{user}} requests to join {{group}}",
+      "TITLE": "New join request"
+    },
+    "GROUP_JOIN_REQUEST_ACCEPTED": {
+      "DESC": "Your request of joining {{group}} has been approved",
+      "TITLE": "Join Request Approved"
+    },
+    "GROUP_JOIN_REQUEST_REJECTED": "Your request of joining {{group}} has been rejected",
+    "GROUP_NEW_MEMBER_ANNOUNCEMENT": {
+      "DESC": "{{newMember}} has joined {{group}}",
+      "TITLE": "New Group Member"
+    },
+    "MISC": {
+      "ACTIONS": {
+        "ACCEPT": "Accept",
+        "REJECT": "Reject"
+      }
+    }
   },
   "RECENTPROJ": {
     "EMPTY": "No recently visited projects yet",

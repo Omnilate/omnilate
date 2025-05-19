@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards, Put } from '@nestjs/common'
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards, Put, Query } from '@nestjs/common'
 import { UserCreateRequest, UserPasswordUpdateRequest, UserBaseResponse, UserUpdateRequest, GroupBaseResponse, ProjectBaseResponse, RecentProjectPutRequest, LanguageSkillResponse } from '@omnilate/schema'
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger'
 
@@ -47,6 +47,14 @@ export class UsersController {
       throw new Error('User not found')
     }
     return userUtils.toBaseResponse(entity)
+  }
+
+  @Get('')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async searchUsers (@Query('keyword') keyword: string): Promise<UserBaseResponse[]> {
+    const result = await this.usersService.search({ keyword })
+    return result.map((user) => userUtils.toBaseResponse(user))
   }
 
   @Get(':id/groups')

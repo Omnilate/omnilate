@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 
-import { UserGroupResponse } from '@/users'
+import { GroupRole, UserGroupResponse } from '@/users'
 
 export abstract class GroupCreateRequest {
   @ApiProperty()
@@ -58,4 +58,9 @@ export abstract class GroupJoinRequestReviewRequest {
 export abstract class GroupInvitationCreateRequest {
   @ApiProperty()
   userId!: number
+}
+
+export abstract class GroupRoleUpdateRequest {
+  @ApiProperty()
+  role!: GroupRole
 }

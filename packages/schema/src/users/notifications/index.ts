@@ -5,7 +5,7 @@ export type NotificationType =
 
 export abstract class NotificationResponse<T extends NotificationType = NotificationType> {
   id!: string
-  type!: T['content']
+  type!: T['type']
   content!: [T['content']]
   data!: T['data']
 

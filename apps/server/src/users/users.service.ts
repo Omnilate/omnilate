@@ -2,9 +2,9 @@ import { createHash } from 'node:crypto'
 
 import { Injectable } from '@nestjs/common'
 import type { UserCreateRequest, UserUpdateRequest } from '@omnilate/schema'
-import { Group, Project, User, UserKnownLanguage } from '@prisma/client'
+import { Project, User, UserKnownLanguage } from '@prisma/client'
+import { compare, hash } from 'bcrypt'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { hash, compare } from 'bcrypt'
 
 @Injectable()
 export class UsersService {
@@ -86,6 +86,51 @@ export class UsersService {
     })
 
     return user
+  }
+
+  async search (
+    { keyword }: { keyword: string }
+  ): Promise<User[]> {
+    const trimmedKeyword = keyword.trim()
+    if (trimmedKeyword.length === 0) {
+      return []
+    }
+
+    const numberKeyword = Number(trimmedKeyword)
+    if (!isNaN(numberKeyword)) {
+      return await this.prisma.user.findMany({
+        where: {
+          OR: [
+            {
+              name: {
+                contains: keyword,
+                mode: 'insensitive'
+              }
+            },
+            {
+              id: {
+                equals: numberKeyword
+              }
+            }
+          ]
+        },
+        orderBy: {
+          updatedAt: 'desc'
+        }
+      })
+    }
+
+    return await this.prisma.user.findMany({
+      where: {
+        name: {
+          contains: keyword,
+          mode: 'insensitive'
+        }
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    })
   }
 
   async updatePassword (uid: number, oldPassword: string, newPassword: string): Promise<void> {

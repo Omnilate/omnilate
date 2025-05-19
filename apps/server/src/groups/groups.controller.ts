@@ -1,6 +1,6 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger'
-import { GroupBaseResponse, GroupCreateRequest, GroupInvitationCreateRequest, GroupJoinRequestReviewRequest, GroupUpdateRequest, UserGroupResponse } from '@omnilate/schema'
+import { GroupBaseResponse, GroupCreateRequest, GroupInvitationCreateRequest, GroupJoinRequestReviewRequest, GroupRoleUpdateRequest, GroupUpdateRequest, UserBaseResponse, UserGroupResponse } from '@omnilate/schema'
 import { GroupJoinInvitationAcceptedNotification, GroupJoinInvitationNotification, GroupJoinInvitationRejectedNotification, GroupJoinRequestAcceptedNotification, GroupJoinRequestNotification, GroupJoinRequestRejectedNotification } from '@omnilate/schema/dist/users/notifications/groups'
 
 import { CurrentUserId } from '@/auth/current-user-id.decorator'
@@ -69,7 +69,45 @@ export class GroupsController {
     return userUtils.toGroupResponse(member)
   }
 
-  // region join
+  @Put(':gid/members/:uid/role')
+  @UseGuards(JwtAuthGuard)
+  async updateMemberRole (
+    @CurrentUserId() operatorId: number,
+    @Param('gid') gid: string,
+    @Param('uid') uid: string,
+    @Body() payload: GroupRoleUpdateRequest
+  ): Promise<UserGroupResponse[]> {
+    const operator = await this.groupsService.getMember(+gid, operatorId)
+    if (operator?.groups[0].role !== 'OWNER') {
+      throw new HttpException('Permission denied', HttpStatus.FORBIDDEN)
+    }
+
+    const members = await this.groupsService.updateMemberRole(+gid, +uid, payload.role)
+    return members.map(userUtils.toGroupResponse)
+  }
+
+  @Delete(':gid/members/:uid')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteMember (
+    @CurrentUserId() operatorId: number,
+    @Param('gid') gid: string,
+    @Param('uid') uid: string
+  ): Promise<void> {
+    const operator = await this.groupsService.getMember(+gid, operatorId)
+    if (operator?.groups[0].role !== 'OWNER') {
+      throw new HttpException('Permission denied', HttpStatus.FORBIDDEN)
+    }
+    const member = await this.groupsService.getMember(+gid, +uid)
+    if (member == null) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+    }
+    if (member.groups[0].role === 'OWNER') {
+      throw new HttpException('Cannot remove owner', HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+    await this.groupsService.removeMember(+gid, +uid)
+  }
+  // #region join
 
   @Post(':gid/join-requests')
   @UseGuards(JwtAuthGuard)
@@ -145,6 +183,21 @@ export class GroupsController {
     }
   }
 
+  @Get(':gid/invited-users')
+  @UseGuards(JwtAuthGuard)
+  async getInvitedUsers (
+    @CurrentUserId() operatorId: number,
+    @Param('gid') gid: string
+  ): Promise<UserBaseResponse[]> {
+    const operator = await this.groupsService.getMember(+gid, operatorId)
+    if (operator?.groups[0].role !== 'OWNER') {
+      throw new HttpException('Permission denied', HttpStatus.FORBIDDEN)
+    }
+
+    const users = await this.groupsService.getInvitedUsers(+gid)
+    return users.map(userUtils.toBaseResponse)
+  }
+
   @Post(':gid/invitations')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
@@ -172,11 +225,16 @@ export class GroupsController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async modifyInvitation (
+    @CurrentUserId() operatorId: number,
     @Param('gid') gid: string,
     @Param('inviterId') inviterId: string,
     @Param('inviteeId') inviteeId: string,
     @Body() payload: GroupJoinRequestReviewRequest
   ): Promise<void> {
+    if (operatorId !== +inviteeId) {
+      throw new HttpException('Permission denied', HttpStatus.FORBIDDEN)
+    }
+
     switch (payload.status) {
       case 'ACCEPTED': {
         await this.groupsService.acceptInvitation(+gid, +inviterId, +inviteeId)
@@ -214,5 +272,5 @@ export class GroupsController {
     }
   }
 
-  // endregion
+  // #endregion
 }

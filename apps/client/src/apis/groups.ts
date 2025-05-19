@@ -146,6 +146,25 @@ export const reviewInvitation = async (
   )
 }
 
+export const getInvitationStatus = async (
+  { gid, inviterId, inviteeId }: {
+    gid: number
+    inviterId: number
+    inviteeId: number
+  }
+): Promise<'ACCEPTED' | 'REJECTED' | 'PENDING'> => {
+  const httpRequest = makeHttpRequest()
+
+  const response = await httpRequest.get(
+    `groups/${gid}/invitations/${inviterId}/to/${inviteeId}/status`
+  )
+  if (!response.ok) {
+    throw new Error('Failed to get invitation status')
+  }
+  const data = await response.text() as 'ACCEPTED' | 'REJECTED' | 'PENDING'
+  return data
+}
+
 export const requestJoinGroup = async (gid: number): Promise<void> => {
   const httpRequest = makeHttpRequest()
 

@@ -124,7 +124,12 @@
     "MISC": {
       "ACTIONS": {
         "ACCEPT": "接受",
+        "OPERATED": "已操作",
         "REJECT": "拒绝"
+      },
+      "TOAST": {
+        "ACCEPT_SUCCESS": "已接受请求",
+        "REJECT_SUCCESS": "已拒绝请求"
       }
     }
   },

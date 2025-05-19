@@ -16,7 +16,7 @@ export const getNotifications = async (): Promise<NotificationResource[]> => {
   return data.map((n) => convertDatetime(n, ['createdAt']))
 }
 
-export const markNotificationAsRead = async (id: bigint): Promise<NotificationResource> => {
+export const markNotificationAsRead = async (id: string): Promise<NotificationResource> => {
   const httpRequest = makeHttpRequest
 
   const response = await httpRequest().patch(`users/me/notifications/${id}/read`)

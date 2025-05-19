@@ -299,6 +299,18 @@ export class GroupsService {
     })
   }
 
+  async getInvitation (gid: number, inviterId: number, inviteeId: number): Promise<GroupInvitation | null> {
+    return await this.prisma.groupInvitation.findUnique({
+      where: {
+        inviterId_groupId_inviteeId: {
+          groupId: gid,
+          inviterId,
+          inviteeId
+        }
+      }
+    })
+  }
+
   async acceptInvitation (gid: number, inviterId: number, inviteeId: number): Promise<void> {
     await this.prisma.$transaction(async (prisma) => {
       await prisma.groupInvitation.update({

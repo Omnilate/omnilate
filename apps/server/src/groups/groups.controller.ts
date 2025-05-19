@@ -221,6 +221,17 @@ export class GroupsController {
     )
   }
 
+  @Get(':gid/invitations/:inviterId/to/:inviteeId/status')
+  @UseGuards(JwtAuthGuard)
+  async getInvitationStatus (
+    @Param('gid') gid: string,
+    @Param('inviterId') inviterId: string,
+    @Param('inviteeId') inviteeId: string
+  ): Promise<'ACCEPTED' | 'REJECTED' | 'PENDING'> {
+    const invitation = await this.groupsService.getInvitation(+gid, +inviterId, +inviteeId)
+    return invitation?.status as 'ACCEPTED' | 'REJECTED' | 'PENDING' ?? 'PENDING'
+  }
+
   @Patch(':gid/invitations/:inviterId/to/:inviteeId')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)

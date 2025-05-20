@@ -10,6 +10,7 @@ import { Image, ImageFallback, ImageRoot } from '@/components/ui/image'
 import { useUserModel } from '@/stores/user'
 import { getContrastTextColor } from '@/utils/contrast-text-color'
 import { getUserColor } from '@/utils/user-color'
+import { useI18n } from '@/utils/i18n'
 
 import EditDescriptionDialog from './components/edit-description-dialog'
 import EditNameDialog from './components/edit-name-dialog'
@@ -22,6 +23,7 @@ const UsersView: Component<UsersViewProps> = (props) => {
   const [descEditShown, setDescEditShown] = createSignal(false)
   const [nameEditShown, setNameEditShown] = createSignal(false)
   const navigate = useNavigate()
+  const t = useI18n()
 
   const userId = (): 'me' | number => {
     const id = props.params.id
@@ -105,8 +107,8 @@ const UsersView: Component<UsersViewProps> = (props) => {
             <div class="text-sm text-slate">
               {
                 (userBase()?.description == null || userBase()?.description === '')
-                  ? userBase()?.description
-                  : 'No description'
+                  ? t.USERVIEW.NO_DESC()
+                  : userBase()?.description
               }
               <Show when={isMe()}>
                 <Icon class="inline-block ml-1 size-3 hover:(c-slate-500 dark:c-slate-300) transition-color cursor-pointer"

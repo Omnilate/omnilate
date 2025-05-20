@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { getLanguageSkills } from '@/apis/language-skills'
 import type { LanguageSkillResource } from '@/apis/language-skills'
 import { supportedLanguageMap } from '@/utils/supported-languages'
+import { useI18n } from '@/utils/i18n'
 
 import LanguageSkillEditDialog from './language-skill-edit-dialog'
 
@@ -23,6 +24,7 @@ const LanguageMastery: Component<LanguageMasteryProps> = (props) => {
     () => props.userId,
     getLanguageSkills
   )
+  const t = useI18n()
 
   const handleEditDialogClose = (): void => {
     setEditingSkill(undefined)
@@ -43,7 +45,7 @@ const LanguageMastery: Component<LanguageMasteryProps> = (props) => {
         onSave={refetchSkills}
       />
       <div class="flex">
-        <span class="text-2xl font-900">Langauge Skills</span>
+        <span class="text-2xl font-900">{t.USERVIEW.LANG.TITLE()}</span>
         <Show when={props.allowEdit}>
           <Button class="size-6"
             size="icon"
@@ -59,7 +61,7 @@ const LanguageMastery: Component<LanguageMasteryProps> = (props) => {
         <Show when={skills() != null || (skills() ?? []).length > 0}
           fallback={(
             <div class="flex flex-1 items-center justify-center w-full h-32 text-slate">
-              No language skills
+              {t.USERVIEW.LANG.EMPTY()}
             </div>
           )}
         >

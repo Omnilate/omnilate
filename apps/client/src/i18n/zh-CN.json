@@ -98,7 +98,7 @@
       "INVITE": {
         "EMPTY": "无结果",
         "HINT": "输入以搜索",
-        "LOADING": "加载中",
+        "LOADING": "加载中……",
         "PLACEHOLDER": "搜索用户名或用户ID",
         "TITLE": "邀请用户",
         "TRIGGER": "邀请"
@@ -198,5 +198,37 @@
       "TITLE": "你的团队"
     },
     "NEWPROJ": "创建新项目"
+  },
+  "USERVIEW": {
+    "DESC": {
+      "SAVE": "保存",
+      "TITLE": "个人简介"
+    },
+    "GROUPS": {
+      "EMPTY": "暂无团队",
+      "TITLE": "团队"
+    },
+    "LANG": {
+      "EDITOR": {
+        "DESC": {
+          "TITLE": "附加描述（可选）"
+        },
+        "LANG": {
+          "TITLE": "语言"
+        },
+        "SCORE": {
+          "TITLE": "掌握程度（0 - 100分）"
+        },
+        "SUBMIT": "提交",
+        "TITLE": "编辑语言技能"
+      },
+      "EMPTY": "暂无内容",
+      "TITLE": "语言技能"
+    },
+    "NO_DESC": "暂无简介",
+    "USERNAME": {
+      "SAVE": "保存",
+      "TITLE": "账户名称"
+    }
   }
 }

@@ -5,12 +5,15 @@ import { A } from '@solidjs/router'
 import { getUserGroups } from '@/apis/user'
 import GroupLogo from '@/components/group-logo'
 import { Separator } from '@/components/ui/separator'
+import { useI18n } from '@/utils/i18n'
 
 interface GroupsProps {
   userId: number
 }
 
 const Groups: Component<GroupsProps> = (props) => {
+  const t = useI18n()
+
   const [groups] = createResource(
     () => props.userId,
     async (uid: number) => {
@@ -20,13 +23,13 @@ const Groups: Component<GroupsProps> = (props) => {
 
   return (
     <div class="flex flex-col gap-4">
-      <div class="text-2xl font-900">Groups</div>
+      <div class="text-2xl font-900">{t.USERVIEW.GROUPS.TITLE()}</div>
       <Separator />
       <div class="flex justify-between">
         <Show when={groups() != null || (groups() ?? []).length > 0}
           fallback={(
             <div class="flex flex-1 items-center justify-center w-full h-32 text-slate">
-              No groups
+              {t.USERVIEW.GROUPS.EMPTY()}
             </div>
           )}
         >
@@ -40,7 +43,7 @@ const Groups: Component<GroupsProps> = (props) => {
                 <Separator orientation="vertical" />
                 <div class="flex flex-col gap-1">
                   <div class="font-700">{group.name}</div>
-                  <div class="text-slate text-xs">{group.description || 'No description'}</div>
+                  <div class="text-slate text-xs">{group.description || t.USERVIEW.NO_DESC()}</div>
                 </div>
               </A>
             )}

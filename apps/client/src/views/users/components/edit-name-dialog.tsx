@@ -1,14 +1,13 @@
-import { createEffect, createSignal } from 'solid-js'
 import type { Component } from 'solid-js'
-import { reload } from '@solidjs/router'
+import { createEffect, createSignal } from 'solid-js'
 
-import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { TextArea } from '@/components/ui/textarea'
-import { TextField, TextFieldLabel, TextFieldRoot } from '@/components/ui/textfield'
-import { iv } from '@/utils/input-value'
-import { Button } from '@/components/ui/button'
-import { useUserModel } from '@/stores/user'
 import { getMe, patchMe } from '@/apis/user'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { TextField, TextFieldLabel, TextFieldRoot } from '@/components/ui/textfield'
+import { useUserModel } from '@/stores/user'
+import { useI18n } from '@/utils/i18n'
+import { iv } from '@/utils/input-value'
 
 interface EditNameDialogProps {
   show: boolean
@@ -19,8 +18,8 @@ interface EditNameDialogProps {
 
 const EditNameDialog: Component<EditNameDialogProps> = (props) => {
   const [name, setName] = createSignal(props.initialName)
-
   const { setUserModel } = useUserModel()
+  const t = useI18n()
 
   const handleOpenChange = (v: boolean): void => {
     if (!v) {
@@ -44,14 +43,16 @@ const EditNameDialog: Component<EditNameDialogProps> = (props) => {
       <DialogContent>
         <form class="flex flex-col gap-2" onSubmit={handleSubmit}>
           <TextFieldRoot>
-            <TextFieldLabel>New Name for Your Account</TextFieldLabel>
+            <TextFieldLabel>{t.USERVIEW.USERNAME.TITLE()}</TextFieldLabel>
             <TextField autoResize
               submitOnEnter
               value={name()}
               onInput={iv(setName)}
             />
           </TextFieldRoot>
-          <Button class="w-fit self-end" size="sm" type="submit">Save</Button>
+          <Button class="w-fit self-end" size="sm" type="submit">
+            {t.USERVIEW.USERNAME.SAVE()}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

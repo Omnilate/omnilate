@@ -1,20 +1,23 @@
-import { createEffect, createSignal } from 'solid-js'
 import type { Component } from 'solid-js'
-import type { LanguageSkillResponse } from '@omnilate/schema'
+import { createEffect, createSignal } from 'solid-js'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { TextFieldLabel, TextFieldRoot } from '@/components/ui/textfield'
+import type { LanguageSkillResource } from '@/apis/language-skills'
+import { deleteLanguageSkill, putLanguageSkill } from '@/apis/language-skills'
 import LanguageSelect from '@/components/new-node-dialog/language-select'
-import type { SupportedLanguageCode } from '@/utils/supported-languages'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
-  NumberField, NumberFieldGroup, NumberFieldIncrementTrigger,
-  NumberFieldLabel, NumberFieldDecrementTrigger, NumberFieldInput
+  NumberField,
+  NumberFieldDecrementTrigger,
+  NumberFieldGroup, NumberFieldIncrementTrigger,
+  NumberFieldInput,
+  NumberFieldLabel
 } from '@/components/ui/number-field'
 import { TextArea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
+import { TextFieldLabel, TextFieldRoot } from '@/components/ui/textfield'
+import { useI18n } from '@/utils/i18n'
 import { iv } from '@/utils/input-value'
-import { deleteLanguageSkill, putLanguageSkill } from '@/apis/language-skills'
-import type { LanguageSkillResource } from '@/apis/language-skills'
+import type { SupportedLanguageCode } from '@/utils/supported-languages'
 
 interface LanguageSkillEditDialogProps {
   existing?: LanguageSkillResource
@@ -27,6 +30,7 @@ const LanguageSkillEditDialog: Component<LanguageSkillEditDialogProps> = (props)
   const [lang, setLang] = createSignal<SupportedLanguageCode>('en')
   const [score, setScore] = createSignal<number>(0)
   const [description, setDescription] = createSignal<string>('')
+  const t = useI18n()
 
   createEffect(() => {
     if (props.existing != null) {
@@ -61,10 +65,10 @@ const LanguageSkillEditDialog: Component<LanguageSkillEditDialogProps> = (props)
       <DialogContent>
         <form class="flex flex-col gap-4" onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Edit Language Skill</DialogTitle>
+            <DialogTitle>{t.USERVIEW.LANG.EDITOR.TITLE()}</DialogTitle>
           </DialogHeader>
           <TextFieldRoot>
-            <TextFieldLabel>Language</TextFieldLabel>
+            <TextFieldLabel>{t.USERVIEW.LANG.EDITOR.LANG.TITLE()}</TextFieldLabel>
             <LanguageSelect value={lang()} onChange={setLang} />
           </TextFieldRoot>
           <NumberField maxValue={100}
@@ -72,7 +76,7 @@ const LanguageSkillEditDialog: Component<LanguageSkillEditDialogProps> = (props)
             rawValue={score()}
             onRawValueChange={setScore}
           >
-            <NumberFieldLabel>Score Your Mastery (0 - 100)</NumberFieldLabel>
+            <NumberFieldLabel>{t.USERVIEW.LANG.EDITOR.SCORE.TITLE()}</NumberFieldLabel>
             <NumberFieldGroup>
               <NumberFieldDecrementTrigger />
               <NumberFieldInput />
@@ -80,14 +84,14 @@ const LanguageSkillEditDialog: Component<LanguageSkillEditDialogProps> = (props)
             </NumberFieldGroup>
           </NumberField>
           <TextFieldRoot>
-            <TextFieldLabel>Additional Description (Optional)</TextFieldLabel>
+            <TextFieldLabel>{t.USERVIEW.LANG.EDITOR.DESC.TITLE()}</TextFieldLabel>
             <TextArea autoResize
               class="resize-y"
               value={description()}
               onChange={iv(setDescription)}
             />
           </TextFieldRoot>
-          <Button type="submit">Submit</Button>
+          <Button type="submit">{t.USERVIEW.LANG.EDITOR.SUBMIT()}</Button>
         </form>
       </DialogContent>
     </Dialog>

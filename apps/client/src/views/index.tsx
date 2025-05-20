@@ -1,12 +1,11 @@
 import type { Component, JSX } from 'solid-js'
 import { createEffect } from 'solid-js'
-import { ColorModeProvider, ColorModeScript } from '@kobalte/core'
 
 import { getMe } from '@/apis/user'
 import { Resizable, ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
+import { ToastList, ToastRegion } from '@/components/ui/toast'
 import { useAuthModel } from '@/stores/auth'
 import { useUserModel } from '@/stores/user'
-import { ToastList, ToastRegion } from '@/components/ui/toast'
 
 import SideMenu from './components/side-menu'
 

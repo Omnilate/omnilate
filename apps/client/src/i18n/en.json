@@ -98,7 +98,7 @@
       "INVITE": {
         "EMPTY": "No Result",
         "HINT": "Type to search",
-        "LOADING": "Loading",
+        "LOADING": "Loading...",
         "PLACEHOLDER": "Search user by name or ID",
         "TITLE": "Invite User",
         "TRIGGER": "Invite"
@@ -198,5 +198,37 @@
       "TITLE": "Your Groups"
     },
     "NEWPROJ": "Start a New Project"
+  },
+  "USERVIEW": {
+    "DESC": {
+      "SAVE": "Save",
+      "TITLE": "Edit Your Description"
+    },
+    "GROUPS": {
+      "EMPTY": "No Groups",
+      "TITLE": "Groups"
+    },
+    "LANG": {
+      "EDITOR": {
+        "DESC": {
+          "TITLE": "Additional Description (Optional)"
+        },
+        "LANG": {
+          "TITLE": "Language"
+        },
+        "SCORE": {
+          "TITLE": "Score Your Mastery (0 - 100)"
+        },
+        "SUBMIT": "Submit",
+        "TITLE": "Edit Language Skill"
+      },
+      "EMPTY": "No Content",
+      "TITLE": "Language Skills"
+    },
+    "NO_DESC": "No Description",
+    "USERNAME": {
+      "SAVE": "Save",
+      "TITLE": "Name of Your Account"
+    }
   }
 }

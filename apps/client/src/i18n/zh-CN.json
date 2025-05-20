@@ -89,6 +89,11 @@
     "OWNER": "所有者"
   },
   "GROUPVIEW": {
+    "DESC": {
+      "EMPTY": "暂无简介",
+      "SAVE": "保存",
+      "TITLE": "团队简介"
+    },
     "MANAGE_MEMBERS": {
       "DELETE": "删除",
       "EDIT": "编辑",
@@ -105,8 +110,17 @@
       },
       "TITLE": "成员"
     },
+    "NAME": {
+      "SAVE": "保存",
+      "TITLE": "团队名称"
+    },
     "PROJECTS": {
       "EMPTY": "暂无项目",
+      "ITEM": {
+        "PRIVATE": "私有",
+        "PUBLIC": "公开",
+        "UPDATED_ON": "更新于{{datetime}}"
+      },
       "TITLE": "项目"
     }
   },

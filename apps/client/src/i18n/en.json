@@ -89,6 +89,11 @@
     "OWNER": "Owner"
   },
   "GROUPVIEW": {
+    "DESC": {
+      "EMPTY": "No description",
+      "SAVE": "Save",
+      "TITLE": "Description of the Group"
+    },
     "MANAGE_MEMBERS": {
       "DELETE": "Delete",
       "EDIT": "Edit",
@@ -105,8 +110,17 @@
       },
       "TITLE": "Members"
     },
+    "NAME": {
+      "SAVE": "Save",
+      "TITLE": "Name of the Group"
+    },
     "PROJECTS": {
       "EMPTY": "No projects yet",
+      "ITEM": {
+        "PRIVATE": "Private",
+        "PUBLIC": "Public",
+        "UPDATED_ON": "Updated on {{datetime}}"
+      },
       "TITLE": "Projects"
     }
   },

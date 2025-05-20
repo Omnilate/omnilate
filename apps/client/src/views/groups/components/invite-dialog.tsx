@@ -1,19 +1,20 @@
 import type { DialogTriggerProps } from '@kobalte/core/dialog'
-import { createSignal, For, Show, Suspense } from 'solid-js'
+import { createAsync, revalidate } from '@solidjs/router'
 import type { Component } from 'solid-js'
-import { createAsync, reload, revalidate } from '@solidjs/router'
+import { createSignal, For, Show, Suspense } from 'solid-js'
 import { toast } from 'solid-sonner'
 
+import { getInvitedUsers, inviteUser } from '@/apis/groups'
+import type { UserGroupResource } from '@/apis/user'
+import { searchUsers } from '@/apis/user'
 import { PlusIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { searchUsers } from '@/apis/user'
-import type { UserGroupResource } from '@/apis/user'
 import { TextField, TextFieldRoot } from '@/components/ui/textfield'
-import { iv } from '@/utils/input-value'
 import UserAvatar from '@/components/user-avatar'
-import { getInvitedUsers, inviteUser } from '@/apis/groups'
+import { iv } from '@/utils/input-value'
+import { useI18n } from '@/utils/i18n'
 
 interface InviteDialogProps {
   gid: number
@@ -21,6 +22,7 @@ interface InviteDialogProps {
 }
 
 const InviteDialog: Component<InviteDialogProps> = (props) => {
+  const t = useI18n()
   const [keyword, setKeyword] = createSignal('')
   const result = createAsync(
     async () => await searchUsers({ keyword: keyword() }),
@@ -44,27 +46,26 @@ const InviteDialog: Component<InviteDialogProps> = (props) => {
           <Icon>
             <PlusIcon />
           </Icon>
-          <span>Invite</span>
+          <span>{t.GROUPVIEW.MEMBERS.INVITE.TRIGGER()}</span>
         </Button>
       )}
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Invite User</DialogTitle>
+          <DialogTitle>{t.GROUPVIEW.MEMBERS.INVITE.TITLE()}</DialogTitle>
         </DialogHeader>
         <div class="flex flex-col gap-4 w-full">
           <TextFieldRoot>
             <TextField
-              placeholder="Search user by name or id"
+              placeholder={t.GROUPVIEW.MEMBERS.INVITE.PLACEHOLDER()}
               value={keyword()}
               onInput={iv(setKeyword)}
             />
           </TextFieldRoot>
           <div class="w-full flex flex-col gap-2">
-
             <Suspense fallback={(
               <div class="w-full h-20 lh-20 text-center opacity-70 font-900">
-                Loading...
+                {t.GROUPVIEW.MEMBERS.INVITE.LOADING()}
               </div>
             )}
             >
@@ -73,8 +74,8 @@ const InviteDialog: Component<InviteDialogProps> = (props) => {
                   <div class="w-full h-20 lh-20 text-center opacity-70 font-900">
                     {
                       keyword() === ''
-                        ? 'Type to Search'
-                        : 'No Result'
+                        ? t.GROUPVIEW.MEMBERS.INVITE.HINT()
+                        : t.GROUPVIEW.MEMBERS.INVITE.EMPTY()
                     }
                   </div>
                 )}
@@ -97,7 +98,7 @@ const InviteDialog: Component<InviteDialogProps> = (props) => {
                           size="sm"
                           disabled={
                             props.members.some((member) => member.id === user.id) ||
-                            invited().some((member) => member.id === user.id)
+                              invited().some((member) => member.id === user.id)
                           }
                           onClick={() => { void handleInvite(user.id) }}
                         >

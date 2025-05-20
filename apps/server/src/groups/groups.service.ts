@@ -4,6 +4,7 @@ import { Group, GroupInvitation, GroupRole, User } from '@prisma/client'
 
 import { PrismaService } from '@/prisma/prisma.service'
 import { UserWithGroups } from '@/utils/users'
+import { GroupWithRole } from '@/utils/groups'
 
 @Injectable()
 export class GroupsService {
@@ -35,12 +36,14 @@ export class GroupsService {
         OR: [
           {
             name: {
-              contains: keyword
+              contains: keyword,
+              mode: 'insensitive'
             }
           },
           {
             description: {
-              contains: keyword
+              contains: keyword,
+              mode: 'insensitive'
             }
           }
         ]
@@ -68,7 +71,27 @@ export class GroupsService {
     return group
   }
 
-  async getUserGroups (uid: number): Promise<Group[]> {
+  async findOneWithRole (id: number, uid: number): Promise<GroupWithRole> {
+    const group = await this.prisma.group.findUnique({
+      where: {
+        id
+      },
+      include: {
+        users: {
+          where: {
+            userId: uid
+          }
+        }
+      }
+    })
+    if (group == null) {
+      throw new Error('Group not found')
+    }
+
+    return group
+  }
+
+  async getUserGroups (uid: number): Promise<GroupWithRole[]> {
     const groups = await this.prisma.group.findMany({
       where: {
         users: {
@@ -78,7 +101,11 @@ export class GroupsService {
         }
       },
       include: {
-        users: true
+        users: {
+          where: {
+            userId: uid
+          }
+        }
       }
     })
 
@@ -238,15 +265,12 @@ export class GroupsService {
 
   async acceptJoinRequest (gid: number, uid: number): Promise<UserWithGroups[]> {
     await this.prisma.$transaction(async (prisma) => {
-      await prisma.groupJoinRequest.update({
+      await prisma.groupJoinRequest.delete({
         where: {
           userId_groupId: {
             userId: uid,
             groupId: gid
           }
-        },
-        data: {
-          status: 'ACCEPTED'
         }
       })
 
@@ -263,15 +287,12 @@ export class GroupsService {
   }
 
   async rejectJoinRequest (gid: number, uid: number): Promise<void> {
-    await this.prisma.groupJoinRequest.update({
+    await this.prisma.groupJoinRequest.delete({
       where: {
         userId_groupId: {
           userId: uid,
           groupId: gid
         }
-      },
-      data: {
-        status: 'REJECTED'
       }
     })
   }
@@ -279,7 +300,10 @@ export class GroupsService {
   async getInvitedUsers (gid: number): Promise<User[]> {
     const invitations = await this.prisma.groupInvitation.findMany({
       where: {
-        groupId: gid
+        groupId: gid,
+        NOT: {
+          status: 'REJECTED'
+        }
       },
       include: {
         invitee: true
@@ -290,6 +314,24 @@ export class GroupsService {
   }
 
   async createInvitation (gid: number, inviterId: number, inviteeId: number): Promise<GroupInvitation> {
+    const existingInvitation = await this.getInvitation(gid, inviterId, inviteeId)
+    if (existingInvitation != null) {
+      if (existingInvitation.status === 'REJECTED') {
+        return await this.prisma.groupInvitation.update({
+          where: {
+            inviterId_groupId_inviteeId: {
+              groupId: gid,
+              inviterId,
+              inviteeId
+            }
+          },
+          data: {
+            status: 'PENDING'
+          }
+        })
+      }
+    }
+
     return await this.prisma.groupInvitation.create({
       data: {
         groupId: gid,
@@ -313,16 +355,13 @@ export class GroupsService {
 
   async acceptInvitation (gid: number, inviterId: number, inviteeId: number): Promise<void> {
     await this.prisma.$transaction(async (prisma) => {
-      await prisma.groupInvitation.update({
+      await prisma.groupInvitation.delete({
         where: {
           inviterId_groupId_inviteeId: {
             groupId: gid,
             inviterId,
             inviteeId
           }
-        },
-        data: {
-          status: 'ACCEPTED'
         }
       })
 
@@ -331,16 +370,13 @@ export class GroupsService {
   }
 
   async rejectInvitation (gid: number, inviterId: number, inviteeId: number): Promise<void> {
-    await this.prisma.groupInvitation.update({
+    await this.prisma.groupInvitation.delete({
       where: {
         inviterId_groupId_inviteeId: {
           groupId: gid,
           inviterId,
           inviteeId
         }
-      },
-      data: {
-        status: 'REJECTED'
       }
     })
   }

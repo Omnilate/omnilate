@@ -1,15 +1,15 @@
 import type { Component } from 'solid-js'
 import { createSignal, Show } from 'solid-js'
+import { toast } from 'solid-sonner'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog'
 import { TextField, TextFieldErrorMessage, TextFieldLabel, TextFieldRoot } from '@/components/ui/textfield'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useProject } from '@/stores/project'
-import { iv } from '@/utils/input-value'
-import { fileParsers } from '@/utils/i18n'
 import type { FileType } from '@/utils/i18n'
-import { showToaster } from '@/utils/toaster'
+import { fileParsers } from '@/utils/i18n'
+import { iv } from '@/utils/input-value'
 import type { SupportedLanguageCode } from '@/utils/supported-languages'
 
 import PathSelect from '../path-select'
@@ -51,12 +51,12 @@ const NewNodeDialog: Component<NewNodeDialogProps> = (props) => {
 
     // validate
     if (name().length === 0) {
-      showToaster('Name cannot be empty')
+      toast.error('Name cannot be empty')
       return
     }
     if (nodeType() === 'file' && importFromLocal()) {
       if (parseError()) {
-        showToaster('Cannot parse the file')
+        toast.error('Cannot parse the file')
         return
       }
     }
@@ -82,7 +82,7 @@ const NewNodeDialog: Component<NewNodeDialogProps> = (props) => {
     try {
       const data = await parse(file)
       setKvData(data)
-      showToaster(`${file.name} has been parsed`)
+      toast.success(`${file.name} has been parsed`)
     } catch {
       setParseError(true)
     }

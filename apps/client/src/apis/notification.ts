@@ -1,7 +1,7 @@
 import type { NotificationResponse, NotificationType } from '@omnilate/schema'
 
-import { convertDatetime } from '@/utils/convert-datetime'
 import type { ConvertDatetime } from '@/utils/convert-datetime'
+import { convertDatetime } from '@/utils/convert-datetime'
 
 import { makeHttpRequest } from './http-request'
 
@@ -20,6 +20,15 @@ export const markNotificationAsRead = async (id: string): Promise<NotificationRe
   const httpRequest = makeHttpRequest
 
   const response = await httpRequest().patch(`users/me/notifications/${id}/read`)
+  const data = await response.json<NotificationResponse>()
+
+  return convertDatetime(data, ['createdAt'])
+}
+
+export const markNotificationAsOperated = async (id: string): Promise<NotificationResource> => {
+  const httpRequest = makeHttpRequest
+
+  const response = await httpRequest().patch(`users/me/notifications/${id}/operated`)
   const data = await response.json<NotificationResponse>()
 
   return convertDatetime(data, ['createdAt'])

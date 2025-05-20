@@ -8,6 +8,7 @@ import UserAvatar from '@/components/user-avatar'
 import { Badge } from '@/components/ui/badge'
 import { useProject } from '@/stores/project'
 import { cn } from '@/utils/cn'
+import { useI18n } from '@/utils/i18n'
 
 interface GroupMemberAvatarProps extends UserGroupResource {
   class?: string
@@ -21,6 +22,7 @@ const GroupMemberAvatar: Component<GroupMemberAvatarProps> = (props) => {
     }
     return Object.values(awareness()!).find((value) => value.uid === props.id)
   }
+  const t = useI18n()
 
   return (
     <Tooltip>
@@ -28,22 +30,22 @@ const GroupMemberAvatar: Component<GroupMemberAvatarProps> = (props) => {
         as={(p: TooltipTriggerProps) => (
           <UserAvatar {...p}
             ref={p.ref as HTMLAnchorElement}
-            class={cn(props.class, 'size-8')}
+            class={cn(props.class, 'size-12')}
             user={props}
           />
         )}
       />
-      <TooltipContent class="flex flex-col items-center gap-2">
-        <UserAvatar class="size-18" user={props} />
-        <Badge variant="secondary">{props.role}</Badge>
+      <TooltipContent class="flex flex-col items-center gap-2 p-4">
+        <UserAvatar class="size-20" user={props} />
+        <Badge variant="secondary">{t.GROUPROLE[props.role]()}</Badge>
         <div class="text-4 font-700">{props.name}</div>
         <div>{props.description}</div>
         <Show when={awareness()}>
           <div>
             {
               userAwarenessInfo()!.active
-                ? `Working on /${userAwarenessInfo()!.workingOn.filePath.join('/')}`
-                : 'Idle'
+                ? t.MEMBER_AVATAR.WORKING_ON({ filePath: userAwarenessInfo()!.workingOn.filePath.join('/') })
+                : t.MEMBER_AVATAR.IDLE()
             }
           </div>
         </Show>

@@ -2,20 +2,20 @@ import { createStore } from 'solid-js/store'
 import { createSignal } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
-import type { GroupBaseResource } from '@/apis/groups'
+import type { GroupRoleResource } from '@/apis/groups'
 import { getUserGroups } from '@/apis/user'
 
 import { useUserModel } from './user'
 
 interface GroupModelReturnType {
-  groupModel: GroupBaseResource[]
-  currentGroup: Accessor<GroupBaseResource | undefined>
+  groupModel: GroupRoleResource[]
+  currentGroup: Accessor<GroupRoleResource | undefined>
   setCurrentGroupId: (id: number) => void
   fetchGroups: () => Promise<void>
 }
 
-const [groupModel, setGroupModel] = createStore<GroupBaseResource[]>([])
-const [currentGroup, setCurrentGroup] = createSignal<GroupBaseResource>()
+const [groupModel, setGroupModel] = createStore<GroupRoleResource[]>([])
+const [currentGroup, setCurrentGroup] = createSignal<GroupRoleResource>()
 
 export function useGroupModel (): GroupModelReturnType {
   const { userModel } = useUserModel()

@@ -1,5 +1,6 @@
 {
   "ADDGROUP": {
+    "APPLIED_TOAST": "Application sent",
     "CREATE_BUTTON": "Create a New Group",
     "JOIN_BUTTON": "Join",
     "MEMBER_COUNT": "{{count}} member(s)",
@@ -87,9 +88,57 @@
     "OBSERVER": "Observer",
     "OWNER": "Owner"
   },
+  "GROUPVIEW": {
+    "MANAGE_MEMBERS": {
+      "DELETE": "Delete",
+      "EDIT": "Edit",
+      "TITLE": "Manage Members"
+    },
+    "MEMBERS": {
+      "INVITE": {
+        "EMPTY": "No Result",
+        "HINT": "Type to search",
+        "LOADING": "Loading",
+        "PLACEHOLDER": "Search user by name or ID",
+        "TITLE": "Invite User",
+        "TRIGGER": "Invite"
+      },
+      "TITLE": "Members"
+    },
+    "PROJECTS": {
+      "EMPTY": "No projects yet",
+      "TITLE": "Projects"
+    }
+  },
   "ME": {
     "DESC_PLACEHOLDER": "No description",
     "LOGOUT": "Logout"
+  },
+  "MEMBER_AVATAR": {
+    "IDLE": "Idle",
+    "WORKING_ON": "Working on {{filePath}}"
+  },
+  "NEWPROJECT": {
+    "BELONG": {
+      "LABEL": "This project will belong to…",
+      "PLACEHOLDER": "Select a group owned by you"
+    },
+    "DESC": {
+      "PLACEHOLDER": "Describe the project",
+      "TITLE": "Description"
+    },
+    "ERROR": {
+      "INVALID_GROUP": "Please select a group",
+      "INVALID_NAME": "Invalid name"
+    },
+    "NAME": {
+      "LABEL": "Name",
+      "PLACEHOLDER": "Name of the project"
+    },
+    "PRIVATE": "Make this project private",
+    "SUBMIT": "Submit",
+    "SUCCESS_TOAST": "Project Created",
+    "TITLE": "New Project"
   },
   "NOTIFICATION": {
     "ALTER_GROUP_ROLE": {
@@ -116,7 +165,10 @@
       "DESC": "Your request of joining {{group}} has been approved",
       "TITLE": "Join Request Approved"
     },
-    "GROUP_JOIN_REQUEST_REJECTED": "Your request of joining {{group}} has been rejected",
+    "GROUP_JOIN_REQUEST_REJECTED": {
+      "DESC": "Your request of joining {{group}} has been rejected",
+      "TITLE": "Join Request Refused"
+    },
     "GROUP_NEW_MEMBER_ANNOUNCEMENT": {
       "DESC": "{{newMember}} has joined {{group}}",
       "TITLE": "New Group Member"

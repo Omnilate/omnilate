@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 
 import { Injectable } from '@nestjs/common'
 import type { UserCreateRequest, UserUpdateRequest } from '@omnilate/schema'
-import { Project, User, UserKnownLanguage } from '@prisma/client'
+import { Group, Project, User, UserKnownLanguage } from '@prisma/client'
 import { compare, hash } from 'bcrypt'
 import { PrismaService } from 'src/prisma/prisma.service'
 
@@ -251,6 +251,19 @@ export class UsersService {
         userId_language: {
           userId: uid,
           language
+        }
+      }
+    })
+  }
+
+  async getAppliedGroups (uid: number): Promise<Group[]> {
+    return await this.prisma.group.findMany({
+      where: {
+        joinRequests: {
+          some: {
+            userId: uid,
+            status: 'PENDING'
+          }
         }
       }
     })

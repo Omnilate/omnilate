@@ -41,6 +41,11 @@ export abstract class GroupBaseResponse {
   updatedAt!: string
 }
 
+export abstract class GroupRoleResponse extends GroupBaseResponse {
+  @ApiProperty()
+  role?: GroupRole
+}
+
 export abstract class GroupDetailResponse extends GroupBaseResponse {
   @ApiProperty()
   // TODO: add project response type

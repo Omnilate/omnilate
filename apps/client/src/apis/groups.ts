@@ -1,4 +1,4 @@
-import type { GroupBaseResponse, GroupCreateRequest, GroupInvitationCreateRequest, GroupJoinRequestReviewRequest, GroupRole } from '@omnilate/schema'
+import type { GroupBaseResponse, GroupCreateRequest, GroupInvitationCreateRequest, GroupJoinRequestReviewRequest, GroupRole, GroupRoleResponse } from '@omnilate/schema'
 import { query } from '@solidjs/router'
 
 import { convertDatetime } from '@/utils/convert-datetime'
@@ -8,6 +8,7 @@ import { makeHttpRequest } from './http-request'
 import type { UserGroupResource } from './user'
 
 export type GroupBaseResource = ConvertDatetime<GroupBaseResponse, 'createdAt' | 'updatedAt'>
+export type GroupRoleResource = ConvertDatetime<GroupRoleResponse, 'createdAt' | 'updatedAt'>
 
 export async function searchGroups (keyword: string): Promise<GroupBaseResource[]> {
   const httpRequest = makeHttpRequest()
@@ -44,7 +45,7 @@ export async function createGroup (name: string, desc: string): Promise<GroupBas
   return convertDatetime(group, ['createdAt', 'updatedAt'])
 }
 
-export const getGroup = query(async (id: number): Promise<GroupBaseResource> => {
+export const getGroup = query(async (id: number): Promise<GroupRoleResource> => {
   const httpRequest = makeHttpRequest()
 
   const response = await httpRequest.get(`groups/${id}`)
@@ -53,7 +54,7 @@ export const getGroup = query(async (id: number): Promise<GroupBaseResource> => 
     throw new Error('Failed to get group')
   }
 
-  const group = await response.json<GroupBaseResponse>()
+  const group = await response.json<GroupRoleResponse>()
   return convertDatetime(group, ['createdAt', 'updatedAt'])
 }, 'get-group-base-by-id')
 

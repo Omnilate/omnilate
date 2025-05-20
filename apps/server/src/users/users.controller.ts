@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards, Put, Query } from '@nestjs/common'
-import { UserCreateRequest, UserPasswordUpdateRequest, UserBaseResponse, UserUpdateRequest, GroupBaseResponse, ProjectBaseResponse, RecentProjectPutRequest, LanguageSkillResponse } from '@omnilate/schema'
+import { UserCreateRequest, UserPasswordUpdateRequest, UserBaseResponse, UserUpdateRequest, GroupBaseResponse, ProjectBaseResponse, RecentProjectPutRequest, LanguageSkillResponse, GroupRoleResponse } from '@omnilate/schema'
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger'
 
 import * as userUtils from '@/utils/users'
@@ -60,9 +60,9 @@ export class UsersController {
   @Get(':id/groups')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  async getGroups (@Param('id') id: string): Promise<GroupBaseResponse[]> {
+  async getGroups (@Param('id') id: string): Promise<GroupRoleResponse[]> {
     const groups = await this.groupsService.getUserGroups(+id)
-    return groups.map((group) => groupUtils.toBaseResponse(group))
+    return groups.map((group) => groupUtils.toRoleResponse(group))
   }
 
   @Patch('me')
@@ -79,6 +79,14 @@ export class UsersController {
   @ApiBody({ type: UserPasswordUpdateRequest })
   async updatePassword (@CurrentUserId() id: number, @Body() request: { oldPassword: string, newPassword: string }): Promise<void> {
     await this.usersService.updatePassword(id, request.oldPassword, request.newPassword)
+  }
+
+  @Get('me/applied-groups')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async getAppliedGroups (@CurrentUserId() uid: number): Promise<GroupBaseResponse[]> {
+    const groups = await this.usersService.getAppliedGroups(uid)
+    return groups.map((group) => groupUtils.toBaseResponse(group))
   }
 
   // #region recent-proj

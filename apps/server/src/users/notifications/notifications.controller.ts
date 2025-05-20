@@ -33,6 +33,13 @@ export class NotificationsController {
     return notificationUtils.toResponse(notification)
   }
 
+  @Patch(':id/operated')
+  @UseGuards(JwtAuthGuard)
+  async markAsOperated (@BigIntParam('id') id: bigint): Promise<NotificationResponse> {
+    const notification = await this.notificationsService.markAsOperated(id)
+    return notificationUtils.toResponse(notification)
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)

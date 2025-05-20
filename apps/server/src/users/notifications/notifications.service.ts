@@ -62,6 +62,19 @@ export class NotificationsService {
     return notification
   }
 
+  async markAsOperated (id: bigint): Promise<Notification> {
+    const notification = await this.prisma.notification.update({
+      where: {
+        id
+      },
+      data: {
+        operated: true
+      }
+    })
+
+    return notification
+  }
+
   async remove (id: bigint): Promise<void> {
     await this.prisma.notification.delete({
       where: {

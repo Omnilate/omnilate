@@ -1,15 +1,15 @@
 import type { Component } from 'solid-js'
 import { createSignal } from 'solid-js'
+import { toast } from 'solid-sonner'
 
 import { createGroup } from '@/apis/groups'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog'
 import { TextArea } from '@/components/ui/textarea'
 import { TextField, TextFieldDescription, TextFieldLabel, TextFieldRoot } from '@/components/ui/textfield'
+import { useGroupModel } from '@/stores/group'
 import { useI18n } from '@/utils/i18n'
 import { iv } from '@/utils/input-value'
-import { showToaster } from '@/utils/toaster'
-import { useGroupModel } from '@/stores/group'
 
 interface CreateGroupDialogProps {
   show: boolean
@@ -25,7 +25,7 @@ const CreateGroupDialog: Component<CreateGroupDialogProps> = (props) => {
   const handleSubmit = async (e: Event): Promise<void> => {
     e.preventDefault()
     await createGroup(groupName(), groupDescription())
-    showToaster(t.CREATEGROUP.SUCCESS_TOAST({ name: groupName() }))
+    toast.success(t.CREATEGROUP.SUCCESS_TOAST({ name: groupName() }))
     await fetchGroups()
     props.onClose()
   }

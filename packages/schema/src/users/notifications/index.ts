@@ -11,6 +11,7 @@ export abstract class NotificationResponse<T extends NotificationType = Notifica
 
   createdAt!: string
   read!: boolean
+  operated!: boolean
 }
 
 export interface NotificationCreatePayload<T extends NotificationType = NotificationType> {

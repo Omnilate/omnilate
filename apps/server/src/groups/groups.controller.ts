@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger'
-import { GroupBaseResponse, GroupCreateRequest, GroupInvitationCreateRequest, GroupJoinRequestReviewRequest, GroupRoleUpdateRequest, GroupUpdateRequest, UserBaseResponse, UserGroupResponse } from '@omnilate/schema'
-import { GroupJoinInvitationAcceptedNotification, GroupJoinInvitationNotification, GroupJoinInvitationRejectedNotification, GroupJoinRequestAcceptedNotification, GroupJoinRequestNotification, GroupJoinRequestRejectedNotification } from '@omnilate/schema/dist/users/notifications/groups'
+import { GroupBaseResponse, GroupCreateRequest, GroupInvitationCreateRequest, GroupJoinRequestReviewRequest, GroupRoleResponse, GroupRoleUpdateRequest, GroupUpdateRequest, UserBaseResponse, UserGroupResponse } from '@omnilate/schema'
+import { GroupJoinInvitationAcceptedNotification, GroupJoinInvitationNotification, GroupJoinInvitationRejectedNotification, GroupJoinRequestAcceptedNotification, GroupJoinRequestNotification, GroupJoinRequestRejectedNotification, GroupNewMemberAnnouncementNotification } from '@omnilate/schema/dist/users/notifications/groups'
 
 import { CurrentUserId } from '@/auth/current-user-id.decorator'
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
@@ -30,9 +30,10 @@ export class GroupsController {
 
   @Get(':id')
   @ApiResponse({ type: GroupBaseResponse })
-  async findOne (@Param('id') id: string): Promise<GroupBaseResponse> {
-    const group = await this.groupsService.findOne(+id)
-    return groupsUtils.toBaseResponse(group)
+  @UseGuards(JwtAuthGuard)
+  async findOne (@Param('id') id: string, @CurrentUserId() uid: number): Promise<GroupRoleResponse> {
+    const group = await this.groupsService.findOneWithRole(+id, uid)
+    return groupsUtils.toRoleResponse(group)
   }
 
   @Patch(':id')
@@ -150,6 +151,7 @@ export class GroupsController {
   ): Promise<void> {
     switch (payload.status) {
       case 'ACCEPTED': {
+        const existingMembers = await this.groupsService.getMembers(+gid)
         await this.groupsService.acceptJoinRequest(+gid, +uid)
         await this.notificationsService.create<GroupJoinRequestAcceptedNotification>(
           +uid,
@@ -161,6 +163,23 @@ export class GroupsController {
             }
           }
         )
+
+        await Promise.all(
+          existingMembers.map(async (member) => {
+            await this.notificationsService.create<GroupNewMemberAnnouncementNotification>(
+              member.id,
+              {
+                type: 'GROUP_NEW_MEMBER_ANNOUNCEMENT',
+                content: 'NOTIFICATION.GROUP_NEW_MEMBER_ANNOUNCEMENT',
+                data: {
+                  groupId: +gid,
+                  newMemberId: +uid
+                }
+              }
+            )
+          })
+        )
+
         break
       }
       case 'REJECTED': {
@@ -190,7 +209,7 @@ export class GroupsController {
     @Param('gid') gid: string
   ): Promise<UserBaseResponse[]> {
     const operator = await this.groupsService.getMember(+gid, operatorId)
-    if (operator?.groups[0].role !== 'OWNER') {
+    if (operator?.groups[0]?.role !== 'OWNER') {
       throw new HttpException('Permission denied', HttpStatus.FORBIDDEN)
     }
 

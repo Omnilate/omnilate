@@ -1,5 +1,6 @@
-import { createSignal, For, Show } from 'solid-js'
+import { createMemo, createResource, createSignal, For, Show } from 'solid-js'
 import type { Component } from 'solid-js'
+import { createAsync } from '@solidjs/router'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog'
@@ -9,6 +10,7 @@ import type { GroupBaseResource } from '@/apis/groups'
 import { iv } from '@/utils/input-value'
 import { Separator } from '@/components/ui/separator'
 import { useI18n } from '@/utils/i18n'
+import { getAppliedGroups } from '@/apis/user'
 
 import GroupSearchItem from './group-search-item'
 
@@ -22,6 +24,15 @@ const AddGroupDialog: Component<AddGroupDialogProps> = (props) => {
   const [searchKeyword, setSearchKeyword] = createSignal<string>('')
   const [groupSearchResult, setGroupSearchResult] = createSignal<GroupBaseResource[]>([])
   const [searched, setSearched] = createSignal<boolean>(false)
+  const [appliedGroups, { refetch: refetchAppliedGroups }] = createResource(
+    getAppliedGroups,
+    { initialValue: [] }
+  )
+
+  const appliedGroupIds = createMemo(() => {
+    return appliedGroups().map((group) => group.id)
+  })
+
   const t = useI18n()
 
   const handleSearch = async (): Promise<void> => {
@@ -66,7 +77,13 @@ const AddGroupDialog: Component<AddGroupDialogProps> = (props) => {
               )}
             >
               <For each={groupSearchResult()}>
-                {(group) => <GroupSearchItem {...group} />}
+                {(group) => (
+                  <GroupSearchItem
+                    appliedGroupIds={appliedGroupIds()}
+                    group={group}
+                    onApplied={refetchAppliedGroups}
+                  />
+                )}
               </For>
             </Show>
             <Separator />

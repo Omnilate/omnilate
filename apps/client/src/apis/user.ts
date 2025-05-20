@@ -1,11 +1,11 @@
-import type { RecentProjectPutRequest, UserBaseResponse, UserCreateRequest, UserGroupResponse, UserUpdateRequest } from '@omnilate/schema'
+import type { GroupRoleResponse, RecentProjectPutRequest, UserBaseResponse, UserCreateRequest, UserGroupResponse, UserUpdateRequest } from '@omnilate/schema'
 import { query } from '@solidjs/router'
 
 import { convertDatetime } from '@/utils/convert-datetime'
 import type { ConvertDatetime } from '@/utils/convert-datetime'
 
 import { makeHttpRequest } from './http-request'
-import type { GroupBaseResource } from './groups'
+import type { GroupBaseResource, GroupRoleResource } from './groups'
 import type { ProjectBaseResource } from './project'
 
 export type UserBaseResource = ConvertDatetime<UserBaseResponse, 'createdAt' | 'updatedAt'>
@@ -67,7 +67,7 @@ export async function patchMe (payload: UserUpdateRequest): Promise<UserBaseReso
   return convertDatetime(user, ['createdAt', 'updatedAt'])
 }
 
-export async function getUserGroups (id: number): Promise<GroupBaseResource[]> {
+export async function getUserGroups (id: number): Promise<GroupRoleResource[]> {
   const httpRequest = makeHttpRequest()
 
   const response = await httpRequest.get(`users/${id}/groups`)
@@ -76,7 +76,7 @@ export async function getUserGroups (id: number): Promise<GroupBaseResource[]> {
     throw new Error('Failed to get user groups')
   }
 
-  const groups = await response.json<GroupBaseResource[]>()
+  const groups = await response.json<GroupRoleResponse[]>()
   return groups.map((group) => convertDatetime(group, ['createdAt', 'updatedAt']))
 }
 
@@ -127,3 +127,16 @@ export const searchUsers = query(
   },
   'user-search'
 )
+
+export const getAppliedGroups = async (): Promise<GroupBaseResource[]> => {
+  const httpRequest = makeHttpRequest()
+
+  const response = await httpRequest.get('users/me/applied-groups')
+
+  if (!response.ok) {
+    throw new Error('Failed to get applied groups')
+  }
+
+  const groups = await response.json<GroupBaseResource[]>()
+  return groups.map((group) => convertDatetime(group, ['updatedAt', 'createdAt']))
+}

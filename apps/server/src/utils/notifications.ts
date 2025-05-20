@@ -8,6 +8,7 @@ export function toResponse (notification: Notification): NotificationResponse {
     content: notification.content as unknown as NotificationResponse['content'],
     data: notification.data as NotificationResponse['data'],
     createdAt: notification.createdAt.toISOString(),
-    read: notification.read
+    read: notification.read,
+    operated: notification.operated
   }
 }

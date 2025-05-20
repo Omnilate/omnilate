@@ -1,36 +1,45 @@
-import { createSignal } from 'solid-js'
 import type { Component } from 'solid-js'
+import { createMemo, createSignal } from 'solid-js'
+import { toast } from 'solid-sonner'
 
+import type { GroupRoleResource } from '@/apis/groups'
+import { createProject } from '@/apis/project'
+import GroupLogo from '@/components/group-logo'
+import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useGroupModel } from '@/stores/group'
-import type { GroupBaseResource } from '@/apis/groups'
-import GroupLogo from '@/components/group-logo'
-import { TextField, TextFieldLabel, TextFieldRoot } from '@/components/ui/textfield'
-import { TextArea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
 import { Switch, SwitchControl, SwitchLabel, SwitchThumb } from '@/components/ui/switch'
+import { TextArea } from '@/components/ui/textarea'
+import { TextField, TextFieldLabel, TextFieldRoot } from '@/components/ui/textfield'
+import { useGroupModel } from '@/stores/group'
+import { useI18n } from '@/utils/i18n'
 import { iv } from '@/utils/input-value'
-import { createProject } from '@/apis/project'
-import { showToaster } from '@/utils/toaster'
 
 interface NewProjectDialogProps {
   show: boolean
   onClose: () => void
 }
 
-// TODO: form validation
 const NewProjectDialog: Component<NewProjectDialogProps> = (props) => {
   const { groupModel } = useGroupModel()
-  const [chosenGroup, setChosenGroup] = createSignal<GroupBaseResource>()
+  const [chosenGroup, setChosenGroup] = createSignal<GroupRoleResource>()
   const [projectName, setProjectName] = createSignal<string>('')
   const [projectDescription, setProjectDescription] = createSignal<string>('')
   const [privateProject, setPrivateProject] = createSignal(false)
+  const t = useI18n()
+
+  const ownedGroups = createMemo(() => groupModel.filter((group) => group.role === 'OWNER'))
 
   const handleSubmit = async (e: Event): Promise<void> => {
     e.preventDefault()
     const { id: groupId } = chosenGroup() ?? {}
     if (groupId == null) {
+      toast.error(t.NEWPROJECT.ERROR.INVALID_GROUP())
+      return
+    }
+
+    if (projectName().length < 1) {
+      toast.error(t.NEWPROJECT.ERROR.INVALID_NAME())
       return
     }
 
@@ -40,20 +49,20 @@ const NewProjectDialog: Component<NewProjectDialogProps> = (props) => {
       privateProject: privateProject()
     })
 
-    showToaster('Project created successfully')
+    toast.success(t.NEWPROJECT.SUCCESS_TOAST())
     props.onClose()
   }
 
   return (
     <Dialog open={props.show} onOpenChange={props.onClose}>
       <DialogContent>
-        <DialogHeader>New Project</DialogHeader>
+        <DialogHeader>{t.NEWPROJECT.TITLE()}</DialogHeader>
         <form class="flex flex-col gap-2" onSubmit={handleSubmit}>
-          <div class="text-sm font-500">This project will belong to……</div>
-          <Select<GroupBaseResource>
+          <div class="text-sm font-500">{t.NEWPROJECT.BELONG.LABEL()}</div>
+          <Select<GroupRoleResource>
             optionValue="id"
-            options={groupModel}
-            placeholder={<span class="text-gray">Select a group you've joined</span>}
+            options={ownedGroups()}
+            placeholder={<span class="text-gray">{t.NEWPROJECT.BELONG.PLACEHOLDER()}</span>}
             itemComponent={(props) => (
               <SelectItem class="transition-colors" item={props.item}>
                 <span class="inline-flex items-center gap-2">
@@ -65,7 +74,7 @@ const NewProjectDialog: Component<NewProjectDialogProps> = (props) => {
             onChange={setChosenGroup}
           >
             <SelectTrigger>
-              <SelectValue<GroupBaseResource>>
+              <SelectValue<GroupRoleResource>>
                 {(state) => (
                   <span class="inline-flex items-center gap-2">
                     <GroupLogo class="size-6" group={state.selectedOption()} />
@@ -77,31 +86,31 @@ const NewProjectDialog: Component<NewProjectDialogProps> = (props) => {
             <SelectContent />
           </Select>
           <TextFieldRoot>
-            <TextFieldLabel>Name</TextFieldLabel>
+            <TextFieldLabel>{t.NEWPROJECT.NAME.LABEL()}</TextFieldLabel>
             <TextField
-              placeholder="Name of the project"
+              placeholder={t.NEWPROJECT.NAME.PLACEHOLDER()}
               value={projectName()}
               onChange={iv(setProjectName)}
             />
           </TextFieldRoot>
           <TextFieldRoot>
-            <TextFieldLabel>Description</TextFieldLabel>
+            <TextFieldLabel>{t.NEWPROJECT.DESC.TITLE()}</TextFieldLabel>
             <TextArea
               class="resize-y"
-              placeholder="Describe the project"
+              placeholder={t.NEWPROJECT.DESC.PLACEHOLDER()}
               value={projectDescription()}
               onChange={iv(setProjectDescription)}
             />
           </TextFieldRoot>
           <div class="w-full my-2">
             <Switch checked={privateProject()} class="flex w-full items-center justify-between text-sm font-500" onChange={setPrivateProject}>
-              <SwitchLabel>Make this project private</SwitchLabel>
+              <SwitchLabel>{t.NEWPROJECT.PRIVATE()}</SwitchLabel>
               <SwitchControl>
                 <SwitchThumb />
               </SwitchControl>
             </Switch>
           </div>
-          <Button type="submit">Submit</Button>
+          <Button type="submit">{t.NEWPROJECT.SUBMIT()}</Button>
         </form>
       </DialogContent>
     </Dialog>

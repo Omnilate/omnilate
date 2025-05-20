@@ -1,5 +1,6 @@
 {
   "ADDGROUP": {
+    "APPLIED_TOAST": "加入申请已发送",
     "CREATE_BUTTON": "创建一个新团队",
     "JOIN_BUTTON": "申请加入",
     "MEMBER_COUNT": "{{count}}名成员",
@@ -87,9 +88,57 @@
     "OBSERVER": "观察者",
     "OWNER": "所有者"
   },
+  "GROUPVIEW": {
+    "MANAGE_MEMBERS": {
+      "DELETE": "删除",
+      "EDIT": "编辑",
+      "TITLE": "管理成员"
+    },
+    "MEMBERS": {
+      "INVITE": {
+        "EMPTY": "无结果",
+        "HINT": "输入以搜索",
+        "LOADING": "加载中",
+        "PLACEHOLDER": "搜索用户名或用户ID",
+        "TITLE": "邀请用户",
+        "TRIGGER": "邀请"
+      },
+      "TITLE": "成员"
+    },
+    "PROJECTS": {
+      "EMPTY": "暂无项目",
+      "TITLE": "项目"
+    }
+  },
   "ME": {
     "DESC_PLACEHOLDER": "暂无简介",
     "LOGOUT": "登出"
+  },
+  "MEMBER_AVATAR": {
+    "IDLE": "待机中",
+    "WORKING_ON": "正在编辑{{filePath}}"
+  },
+  "NEWPROJECT": {
+    "BELONG": {
+      "LABEL": "所属团队",
+      "PLACEHOLDER": "选择一个你拥有的团队"
+    },
+    "DESC": {
+      "PLACEHOLDER": "描述项目",
+      "TITLE": "描述"
+    },
+    "ERROR": {
+      "INVALID_GROUP": "请选择所属团队",
+      "INVALID_NAME": "名称不符合要求"
+    },
+    "NAME": {
+      "LABEL": "名称",
+      "PLACEHOLDER": "项目名称"
+    },
+    "PRIVATE": "私有项目",
+    "SUBMIT": "创建",
+    "SUCCESS_TOAST": "已创建项目",
+    "TITLE": "创建项目"
   },
   "NOTIFICATION": {
     "ALTER_GROUP_ROLE": {
@@ -116,7 +165,10 @@
       "DESC": "你加入{{group}}的请求已被通过",
       "TITLE": "加入请求已通过"
     },
-    "GROUP_JOIN_REQUEST_REJECTED": "你加入{{group}}的请求已被拒绝",
+    "GROUP_JOIN_REQUEST_REJECTED": {
+      "DESC": "你加入{{group}}的请求已被拒绝",
+      "TITLE": "加入请求已被拒绝"
+    },
     "GROUP_NEW_MEMBER_ANNOUNCEMENT": {
       "DESC": "{{newMember}}加入了{{group}}",
       "TITLE": "新团队成员"

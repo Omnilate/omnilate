@@ -33,8 +33,8 @@ const RootRoute: Component = () => {
             <Route path="/groups">
               <Route component={GroupsView} path="/:id" preload={preloadGroups} />
               <Route component={ProjectsView} path="/:gid/projects/:pid">
-                <Route path="" />
                 <Route component={FilesView} path="/files/*path" />
+                <Route component={() => <Navigate href="./files/" />} path="" />
               </Route>
             </Route>
             <Route component={() => <Navigate href="/" />} path="*" />

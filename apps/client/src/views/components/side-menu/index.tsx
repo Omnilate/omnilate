@@ -14,7 +14,7 @@ const SideMenu: Component = () => {
 
   return (
     <div class="flex size-full flex-col justify-between">
-      <div class="flex size-full flex-col">
+      <div class="flex size-full flex-col overflow-y-auto hide-scrollbar">
         <Show when={authenticated()}>
           <Accordion collapsible
             multiple

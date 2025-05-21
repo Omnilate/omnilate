@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 
 interface LanguageSelectProps {
   languages?: SupportedLanguageCode[]
-  value: SupportedLanguageCode
+  value?: SupportedLanguageCode
   onChange: (value: SupportedLanguageCode) => void
 }
 
@@ -22,7 +22,7 @@ const LanguageSelect: Component<LanguageSelectProps> = (props) => {
       return supportedLanguages
     }
 
-    return supportedLanguages.filter((lang) => (props.languages).includes(lang.code))
+    return supportedLanguages.filter((lang) => (props.languages ?? []).includes(lang.code))
   })
 
   const handleSelectValueChange = (value: LanguageOption | null): void => {
@@ -55,12 +55,10 @@ const LanguageSelect: Component<LanguageSelectProps> = (props) => {
     >
       <SelectTrigger>
         <SelectValue<LanguageOption> class="flex flex-1 justify-between">
-          {
-            (state) => state.selectedOption().nativeName
-          }
+          { (state) => state.selectedOption()?.nativeName ?? '' }
         </SelectValue>
       </SelectTrigger>
-      <SelectContent class="*:my-1" />
+      <SelectContent class="*:my-1 max-h-xs overflow-y-auto hide-scrollbar" />
     </Select>
   )
 }

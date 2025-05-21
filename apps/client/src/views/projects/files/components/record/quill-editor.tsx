@@ -139,7 +139,7 @@ const QuillEditor: Component<QuillEditorProps> = (props) => {
 
   return (
     <div class="rounded-xl b-(border solid) w-full">
-      <div ref={setQuillEl} class="overflow-visible" />
+      <div ref={setQuillEl} style={{ overflow: 'visible' }} />
     </div>
   )
 }

@@ -84,5 +84,6 @@ export const supportedLanguageMap = supportedLanguages.reduce<Record<SupportedLa
   acc[lang.code] = lang
   return acc
 }, {})
+export const supportedLanguageCodeList = supportedLanguages.map((lang) => lang.code)
 
 export type SupportedLanguageCode = typeof supportedLanguages[number]['code']

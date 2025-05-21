@@ -14,6 +14,7 @@ interface ProjectsProps extends RouteSectionProps {}
 const ProjectsView: Component<ProjectsProps> = (props) => {
   const { setCurrentGroupId, fetchGroups } = useGroupModel()
   const { setProject, projectMeta, clearModel } = useProject()
+  const { yProject } = useProject()
   onMount(async () => {
     await fetchGroups()
     setCurrentGroupId(+props.params.gid)
@@ -26,7 +27,7 @@ const ProjectsView: Component<ProjectsProps> = (props) => {
 
   return (
     <div class="flex flex-col size-full">
-      {/* <div class="fixed bottom-0 right-0 bg-gray-300 pointer-events-none opacity-50">
+      <div class="fixed bottom-0 right-0 bg-gray-300 pointer-events-none opacity-50">
         <div>Debug</div>
         <div>
           clientId:
@@ -36,7 +37,7 @@ const ProjectsView: Component<ProjectsProps> = (props) => {
           awareness:
           {JSON.stringify(yProject()?.awarenessMap)}
         </div>
-      </div> */}
+      </div>
       <div class="h-14 w-full b-b-(1px solid border) px-4 flex justify-between items-center bg-background shadow-sm shrink-0">
         <div class="flex items-center gap-2">
           <span class="text-xl font-500">{projectMeta()?.name}</span>

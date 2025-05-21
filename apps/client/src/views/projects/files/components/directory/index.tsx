@@ -66,7 +66,7 @@ const Directory: Component<DirectoryProps> = (props) => {
   }
 
   return (
-    <div class="flex w-full flex-col gap-4 px-4">
+    <div class="flex-1 flex w-full flex-col gap-4 px-4">
       <NewNodeDialog initialPath={props.dirPath} show={dialogShown()} onClose={handleDialogClose} />
       <div class="flex w-full justify-between items-center">
         <div class="flex gap-2">
@@ -93,31 +93,39 @@ const Directory: Component<DirectoryProps> = (props) => {
         </div>
       </div>
       <Suspense fallback={<div>Loading...</div>}>
-        <For each={subnodeList()}>
-          {([name, node]) => {
-            return (
-              <A
-                class="flex items-center justify-between ml-2 py-2 px-4 mr-2 rounded-xl bg-background hover:(shadow) transition-shadow"
-                href={`${props.baseUrl ?? ''}${props.dirPath.length > 0 ? `/${props.dirPath.join('/')}` : ''}/${name}`}
-              >
-                <div class="flex gap-2 items-center">
-                  <Icon>
-                    <Show fallback={<DocumentIcon />} when={node.type === 'directory'}>
-                      <FolderIcon />
-                    </Show>
-                  </Icon>
-                  <span>{name}</span>
-                </div>
-                <Show when={node.type === 'file'}>
-                  <span class="text-xs text-gray-500">
-                    {'Updated on '}
-                    {serializeDateTime(new Date((node as ProjectFile).updatedAt))}
-                  </span>
-                </Show>
-              </A>
-            )
-          }}
-        </For>
+        <Show when={subnodeList().length > 0}
+          fallback={(
+            <div flex-1 class="flex-1 font-700 opacity-50 flex justify-center items-center text-xl">
+              Empty
+            </div>
+          )}
+        >
+          <For each={subnodeList()}>
+            {([name, node]) => {
+              return (
+                <A
+                  class="flex items-center justify-between ml-2 py-2 px-4 mr-2 rounded-xl bg-background hover:(shadow) transition-shadow"
+                  href={`${props.baseUrl ?? ''}${props.dirPath.length > 0 ? `/${props.dirPath.join('/')}` : ''}/${name}`}
+                >
+                  <div class="flex gap-2 items-center">
+                    <Icon>
+                      <Show fallback={<DocumentIcon />} when={node.type === 'directory'}>
+                        <FolderIcon />
+                      </Show>
+                    </Icon>
+                    <span>{name}</span>
+                  </div>
+                  <Show when={node.type === 'file'}>
+                    <span class="text-xs text-gray-500">
+                      {'Updated on '}
+                      {serializeDateTime(new Date((node as ProjectFile).updatedAt))}
+                    </span>
+                  </Show>
+                </A>
+              )
+            }}
+          </For>
+        </Show>
       </Suspense>
     </div>
   )

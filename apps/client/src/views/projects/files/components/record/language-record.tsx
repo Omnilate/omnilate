@@ -11,13 +11,13 @@ import { Separator } from '@/components/ui/separator'
 import { TextArea } from '@/components/ui/textarea'
 import { TextFieldRoot } from '@/components/ui/textfield'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useGroupModel } from '@/stores/group'
 import { iv } from '@/utils/input-value'
-import type { SupportedLanguageCode } from '@/utils/supported-languages'
 import { supportedLanguageMap } from '@/utils/supported-languages'
 import type { FileOnYjs } from '@/y/file-on-yjs'
 
-import QuillEditor from './quill-editor'
 import DiscussionItem from './discussion-item'
+import QuillEditor from './quill-editor'
 
 interface LanguageRecordProps {
   key: string
@@ -32,6 +32,7 @@ interface LanguageRecordProps {
 const LanguageRecordItem: Component<LanguageRecordProps> = (props) => {
   const [openedSections, setOpenedSections] = createSignal<Array<'edit' | 'discussion'>>([])
   const [discussionContent, setDiscussionContent] = createSignal('')
+  const { currentGroup } = useGroupModel()
 
   const text = createMemo(() => {
     const record = props.file?.rawRecords.get(props.key)
@@ -61,25 +62,35 @@ const LanguageRecordItem: Component<LanguageRecordProps> = (props) => {
     setDiscussionContent('')
   }
 
+  const handleCommit = (): void => {
+
+  }
+
   return (
-    <div class="flex flex-col gap-4">
-      <div class="flex gap-4 items-center">
-        <div class="flex flex-col gap-2 items-center">
-          <div class="font-600">{supportedLanguageMap[props.lang as SupportedLanguageCode].nativeName}</div>
-          <Badge class="flex items-center gap-1 text-sm bg-slate-200" variant="secondary">
-            <div>{supportedLanguageMap[props.lang as SupportedLanguageCode].icon}</div>
+    <div class="flex flex-col gap-4 p-4 bg-background rounded-xl b-(1px solid border)">
+      <div class="flex gap-2 items-center">
+        <div class="flex flex-col gap-2 items-center w-24">
+          <div class="font-600">{supportedLanguageMap[props.lang].nativeName}</div>
+          <Badge class="flex items-center gap-1 text-sm" variant="secondary">
+            <div>{supportedLanguageMap[props.lang].icon}</div>
             <span>{props.lang}</span>
           </Badge>
         </div>
-        <Badge>
+        <Badge class="w-18 flex justify-center">
           {props.record.state.toUpperCase()}
         </Badge>
         <div class="flex-1">{props.record.value}</div>
         <div class="flex gap-2 items-center">
           <ToggleGroup multiple value={openedSections()} onChange={setOpenedSections}>
-            <ToggleGroupItem value="edit">
-              <Icon><EditIcon /></Icon>
-            </ToggleGroupItem>
+            <Show when={
+              (currentGroup()?.role !== 'OBSERVER' && props.record.state === 'wip') ||
+              (['OWNER', 'ADMIN'].includes(currentGroup()?.role) && props.record.state === 'source')
+            }
+            >
+              <ToggleGroupItem value="edit">
+                <Icon><EditIcon /></Icon>
+              </ToggleGroupItem>
+            </Show>
             <ToggleGroupItem value="discussion">
               <Icon><DiscussionIcon /></Icon>
             </ToggleGroupItem>
@@ -99,7 +110,7 @@ const LanguageRecordItem: Component<LanguageRecordProps> = (props) => {
             text={text()}
             onLocalCursorChange={handleCursorChange}
           />
-          <Button>Commit</Button>
+          <Button onClick={handleCommit}>Commit</Button>
         </div>
       </Show>
       <Show when={openedSections().includes('discussion')}>

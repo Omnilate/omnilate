@@ -1,18 +1,19 @@
-import type { Component } from 'solid-js'
-import { createEffect, createMemo, onCleanup, Show, Switch, Match } from 'solid-js'
 import { A } from '@solidjs/router'
+import type { Component } from 'solid-js'
+import { createEffect, createMemo, Match, onCleanup, Show, Switch } from 'solid-js'
 
-import { Badge } from '@/components/ui/badge'
-import { useProject } from '@/stores/project'
-import LanguageSelect from '@/components/new-node-dialog/language-select'
+import { ChevronRightIcon } from '@/assets/icons'
 import Icon from '@/components/icon'
-import { ChevronRightIcon, CogIcon } from '@/assets/icons'
-import { Button } from '@/components/ui/button'
+import LanguageSelect from '@/components/new-node-dialog/language-select'
+import { Badge } from '@/components/ui/badge'
+import { useGroupModel } from '@/stores/group'
+import { useProject } from '@/stores/project'
 
+import RecordView from '../record'
 import LanguageProgress from './language-progress'
 import LanguageStateCounts from './language-state-counts'
 import RecordsTable from './records-table'
-import RecordView from '../record'
+import SettingsDialog from './settings-dialog'
 
 export interface FileViewProps {
   filePath: string[]
@@ -24,6 +25,7 @@ const FileView: Component<FileViewProps> = (props) => {
   const { yProject } = useProject()
   const file = createMemo(() => yProject()?.currentFileDoc())
   const fileName = (): string => props.filePath.at(-1)!
+  const { currentGroup } = useGroupModel()
 
   createEffect(() => {
     console.log('FileView: filePath', props.filePath)
@@ -54,10 +56,9 @@ const FileView: Component<FileViewProps> = (props) => {
             </Show>
           </div>
           <div>
-            <Button class="gap-1">
-              <Icon><CogIcon /></Icon>
-              <span>Settings</span>
-            </Button>
+            <Show when={currentGroup()?.role === 'OWNER'}>
+              <SettingsDialog />
+            </Show>
           </div>
         </div>
       </div>

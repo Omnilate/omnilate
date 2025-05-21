@@ -15,7 +15,7 @@ const AddRecordPopover: Component = () => {
   const handleAddRecord = (e: Event): void => {
     e.preventDefault()
 
-    currentFile()?.createEmptyKey(key())
+    currentFile()?.createKey(key())
     setKey('')
   }
 

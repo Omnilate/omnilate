@@ -154,7 +154,16 @@ export class ProjectOnYjs {
       newFile.set('sourceLanguage', srcLang)
       newFile.set('createdAt', new Date().toISOString())
       newFile.set('updatedAt', new Date().toISOString())
-      newFile.set('languages', new Y.Map<LanguageMetaY>())
+
+      const langMeta = new Y.Map<LanguageMetaY>()
+      const srcLangMeta: LanguageMetaY = new Y.Map()
+      srcLangMeta.set('source', true)
+      srcLangMeta.set('recordsWIPCount', 0)
+      srcLangMeta.set('recordsNeedReviewCount', 0)
+      srcLangMeta.set('recordsApprovedCount', 0)
+      srcLangMeta.set('recordsRejectedCount', 0)
+      langMeta.set(srcLang, srcLangMeta)
+      newFile.set('languages', langMeta)
 
       const records = new Y.Map<ProjectRecordY>()
       for (const [key, value] of Object.entries(initData)) {
@@ -211,7 +220,13 @@ export class ProjectOnYjs {
         this.currentFileDoc()?.destroy()
       }
 
-      const file = new FileOnYjs(this.projectDoc, target as ProjectFileY, this.uid, this.awareness)
+      const file = new FileOnYjs(
+        this.projectDoc,
+        target as ProjectFileY,
+        this.uid,
+        this.awareness,
+        path
+      )
       this.setCurrentFileDoc(file)
       this.awareness.setLocalStateField('active', true)
       this.awareness.setLocalStateField('workingOn', {

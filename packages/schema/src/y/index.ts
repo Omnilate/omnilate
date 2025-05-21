@@ -90,6 +90,7 @@ export interface LanguageMetaStructure {
   source: boolean
   recordsWIPCount: number
   recordsNeedReviewCount: number
+  recordsReviewedCount: number
   recordsApprovedCount: number
   recordsRejectedCount: number
 }

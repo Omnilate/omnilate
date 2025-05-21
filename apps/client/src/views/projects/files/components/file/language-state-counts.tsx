@@ -1,7 +1,7 @@
 import type { Component } from 'solid-js'
 import { createMemo } from 'solid-js'
 
-import type { SupportedLanguageCode } from '@/components/new-node-dialog/language-select'
+import type { SupportedLanguageCode } from '@/utils/supported-languages'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 

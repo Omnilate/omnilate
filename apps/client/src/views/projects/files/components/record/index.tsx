@@ -24,7 +24,7 @@ const RecordView: Component<RecordProps> = (props) => {
   })
 
   return (
-    <div class="flex flex-col w-full p-4 shadow bg-background rounded-xl">
+    <div class="flex flex-col w-full p-4 shadow bg-background rounded-xl gap-4">
       {
         (props.file != null) && (
           <For each={Object.entries(props.file.fileStore.records?.[props.key].languages ?? {})}>
